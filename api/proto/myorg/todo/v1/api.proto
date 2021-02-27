@@ -10,87 +10,11 @@ option java_package = "com.myorg.todo.v1";
 option objc_class_prefix = "MTX";
 option php_namespace = "MyOrg\\Todo\\V1";
 
-import "google/protobuf/timestamp.proto";
-
-message Todo {
-    string id = 1;
-    google.protobuf.Timestamp created_at = 2;
-    string title = 3;
-    bool done = 4;
-}
-
-message CreateTodoRequest {
-    string title = 1;
-}
-
-message CreateTodoResponse {
-    Todo todo = 1;
-}
-
-message GetTodoRequest {
-    string id = 1;
-}
-
-message GetTodoResponse {
-    Todo todo = 1;
-}
-
-message PaginationRequest {
-    oneof request {
-        ForwardPaginationRequest forward_pagination_info = 1;
-        BackwardPaginationRequest backward_pagination_info = 2;
-    }
-}
-
-message ForwardPaginationRequest {
-    int32 first = 1;
-    string after = 2;
-}
-
-message BackwardPaginationRequest {
-    int32 last = 1;
-    string before = 2;
-}
-
-message GetTodosRequest {
-    PaginationRequest pagination_request = 1;
-}
-
-message GetTodosResponse {
-    repeated TodoEdge edges = 1;
-    PageInfo page_info = 2;
-
-    // total count of items that match the filter.
-    // might be greater than page size.
-    int32 total_count = 3;
-}
-
-message TodoEdge {
-    string cursor = 1;
-    Todo todo = 2;
-}
-
-message PageInfo {
-    // cursor of last item in page
-    string end_cursor = 1;
-    bool has_next_page = 2;
-}
-
-message UpdateTodoRequest {
-    string id = 1;
-    string title = 2;
-    bool done = 3;
-}
-
-message UpdateTodoResponse {
-    Todo todo = 1;
-}
-
-message DeleteTodoRequest {
-    string id = 1;
-}
-
-message DeleteTodoResponse {}
+import "myorg/todo/v1/create_todo.proto";
+import "myorg/todo/v1/get_todo.proto";
+import "myorg/todo/v1/get_todos.proto";
+import "myorg/todo/v1/update_todo.proto";
+import "myorg/todo/v1/delete_todo.proto";
 
 service TodoService {
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);

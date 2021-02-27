@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package myorg.todo.v1;
+
+option csharp_namespace = "MyOrg.Todo.V1";
+option go_package = "github.com/MyOrg/api-monorepo/pkg/pb/myorg/todo/v1";
+option java_multiple_files = true;
+option java_outer_classname = "TodoProto";
+option java_package = "com.myorg.todo.v1";
+option objc_class_prefix = "MTX";
+option php_namespace = "MyOrg\\Todo\\V1";
+
+message PaginationRequest {
+    oneof request {
+        ForwardPaginationRequest forward_pagination_info = 1;
+        BackwardPaginationRequest backward_pagination_info = 2;
+    }
+}
+
+message ForwardPaginationRequest {
+    int32 first = 1;
+    string after = 2;
+}
+
+message BackwardPaginationRequest {
+    int32 last = 1;
+    string before = 2;
+}
+
+message PageInfo {
+    // cursor of last item in page
+    string end_cursor = 1;
+    bool has_next_page = 2;
+}

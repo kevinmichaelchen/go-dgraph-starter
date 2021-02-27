@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package myorg.todo.v1;
+
+option csharp_namespace = "MyOrg.Todo.V1";
+option go_package = "github.com/MyOrg/api-monorepo/pkg/pb/myorg/todo/v1";
+option java_multiple_files = true;
+option java_outer_classname = "TodoProto";
+option java_package = "com.myorg.todo.v1";
+option objc_class_prefix = "MTX";
+option php_namespace = "MyOrg\\Todo\\V1";
+
+import "myorg/todo/v1/todo.proto";
+import "myorg/todo/v1/pagination.proto";
+
+message GetTodosRequest {
+    PaginationRequest pagination_request = 1;
+}
+
+message GetTodosResponse {
+    repeated TodoEdge edges = 1;
+    PageInfo page_info = 2;
+
+    // total count of items that match the filter.
+    // might be greater than page size.
+    int32 total_count = 3;
+}
+
+message TodoEdge {
+    string cursor = 1;
+    Todo todo = 2;
+}
