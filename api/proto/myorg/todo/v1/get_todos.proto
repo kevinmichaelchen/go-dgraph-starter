@@ -12,9 +12,12 @@ option php_namespace = "MyOrg\\Todo\\V1";
 
 import "myorg/todo/v1/todo.proto";
 import "myorg/todo/v1/pagination.proto";
+import "google/protobuf/timestamp.proto";
 
 message GetTodosRequest {
     PaginationRequest pagination_request = 1;
+    OrderTodosBy order_by = 2;
+    TodosWhere where = 3;
 }
 
 message GetTodosResponse {
@@ -29,4 +32,44 @@ message GetTodosResponse {
 message TodoEdge {
     string cursor = 1;
     Todo todo = 2;
+}
+
+message TodosWhere {
+    StringFilter title = 1;
+    NumberFilter created_at = 2;
+}
+
+message NumberFilter {
+    repeated google.protobuf.Timestamp in = 1;
+    repeated google.protobuf.Timestamp not_in = 2;
+    google.protobuf.Timestamp not = 3;
+    google.protobuf.Timestamp lt = 4;
+    google.protobuf.Timestamp gt = 5;
+    google.protobuf.Timestamp lte = 6;
+    google.protobuf.Timestamp gte = 7;
+}
+
+message StringFilter {
+    repeated string in = 1;
+    string not = 2;
+    repeated string not_in = 3;
+    string contains = 4;
+    string ends_with = 5;
+    string starts_with = 6;
+    string not_contains = 7;
+    string not_ends_with = 8;
+    string not_starts_with = 9;
+}
+
+enum OrderTodosBy {
+    ORDER_TODOS_BY_UNSPECIFIED = 0;
+
+    ORDER_TODOS_BY_ID_ASC = 1;
+    ORDER_TODOS_BY_ID_DESC = 2;
+
+    ORDER_TODOS_BY_CREATED_AT_ASC = 3;
+    ORDER_TODOS_BY_CREATED_AT_DESC = 4;
+
+    ORDER_TODOS_BY_TITLE_ASC = 5;
+    ORDER_TODOS_BY_TITLE_DESC = 6;
 }
