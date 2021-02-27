@@ -1,0 +1,8 @@
+[psql]
+dbname = "myorg"
+host = "localhost"
+user = "myorg"
+pass = "myorg"
+sslmode = "disable"
+# Do not generate code for the golang-migrate migrations table
+blacklist = ["schema_migrations"]

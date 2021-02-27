@@ -1,0 +1,58 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-binary
+    depends_on:
+      - postgres
+      - jaeger
+      - redis
+    environment:
+      DB_NAME: myorg
+      DB_USER: myorg
+      DB_PASS: myorg
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - 8082:8082
+      - 8083:8083
+      - 8084:8084
+      - 8085:8085
+
+  redis:
+    image: library/redis:6.0.7-alpine
+    restart: always
+    ports:
+      - 6379:6379
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.18
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    ports:
+    - 5775:5775/udp
+    - 6831:6831/udp
+    - 6832:6832/udp
+    - 5778:5778
+    - 16686:16686
+    - 14268:14268
+    - 14250:14250
+    - 9411:9411
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: myorg
+      POSTGRES_PASSWORD: myorg
+      POSTGRES_DB: myorg
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  pgdata:

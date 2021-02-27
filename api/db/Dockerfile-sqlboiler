@@ -1,0 +1,9 @@
+FROM golang:latest
+
+# Install sqlboiler v4
+RUN GO111MODULE=off go get -u -t -v github.com/volatiletech/sqlboiler
+
+# Install an sqlboiler driver - these are seperate binaries, here we are
+# choosing postgresql
+RUN GO111MODULE=off go get -v github.com/volatiletech/sqlboiler/drivers/sqlboiler-psql
+
