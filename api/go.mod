@@ -3,6 +3,7 @@ module github.com/MyOrg/go-dgraph-starter
 go 1.15
 
 require (
+	github.com/dgraph-io/dgo/v200 v200.0.0-20210212152539-e0a5bde40ba2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-redis/cache/v8 v8.3.1
 	github.com/go-redis/redis/v8 v8.6.0

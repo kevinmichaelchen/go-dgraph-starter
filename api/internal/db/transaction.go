@@ -1,30 +1,21 @@
 package db
 
 import (
-	"database/sql"
+	"github.com/dgraph-io/dgo/v200"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
 )
 
-const (
-	SpanPrefix = "db."
-)
-
 type Transaction interface {
 	TodoTransaction
-	GetTx() *sql.Tx
 }
 
 type txImpl struct {
-	tx *sql.Tx
+	tx *dgo.Txn
 	todoTransactionImpl
 }
 
-func (tx txImpl) GetTx() *sql.Tx {
-	return tx.tx
-}
-
-func newTransaction(tx *sql.Tx, redisClient RedisClient, config configuration.Config) Transaction {
+func newTransaction(tx *dgo.Txn, redisClient RedisClient, config configuration.Config) Transaction {
 	return &txImpl{
 		tx:                  tx,
 		todoTransactionImpl: todoTransactionImpl{tx: tx, redisClient: redisClient},

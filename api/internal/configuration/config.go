@@ -30,8 +30,9 @@ type Config struct {
 	// HTTPPort controls what port our HTTP server runs on.
 	HTTPPort int
 
-	SQLConfig   SQLConfig
-	RedisConfig RedisConfig
+	SQLConfig    SQLConfig
+	RedisConfig  RedisConfig
+	DgraphConfig DgraphConfig
 
 	// TraceConfig contains config info for how we do tracing.
 	TraceConfig TraceConfig
@@ -55,6 +56,7 @@ func LoadConfig() Config {
 
 	c.SQLConfig = LoadSQLConfig()
 	c.RedisConfig = LoadRedisConfig()
+	c.DgraphConfig = LoadDgraphConfig()
 	c.TraceConfig = LoadTraceConfig()
 
 	flag.Int(flagForGrpcPort, c.GrpcPort, "gRPC port")

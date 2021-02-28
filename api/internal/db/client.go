@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
+	"github.com/dgraph-io/dgo/v200"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
@@ -13,16 +13,17 @@ type TransactionFunc func(context.Context, Transaction) error
 
 type Client interface {
 	Ping(ctx context.Context) error
-	RunInTransaction(ctx context.Context, fn TransactionFunc, opts *sql.TxOptions) error
+	RunInTransaction(ctx context.Context, fn TransactionFunc) error
+	RunInReadOnlyTransaction(ctx context.Context, fn TransactionFunc) error
 }
 
 type clientImpl struct {
-	db          *sql.DB
+	db          *dgo.Dgraph
 	config      configuration.Config
 	redisClient RedisClient
 }
 
-func NewClient(db *sql.DB, redisClient RedisClient, config configuration.Config) Client {
+func NewClient(db *dgo.Dgraph, redisClient RedisClient, config configuration.Config) Client {
 	return &clientImpl{
 		db:          db,
 		config:      config,
@@ -31,41 +32,60 @@ func NewClient(db *sql.DB, redisClient RedisClient, config configuration.Config)
 }
 
 func (c *clientImpl) Ping(ctx context.Context) error {
-	return c.db.PingContext(ctx)
+	// TODO how do you ping dgraph?
+	return nil
 }
 
-func (c *clientImpl) EnsureConnectionIsOpen(ctx context.Context) {
-	// TODO if the connection is closed, re-open it
-}
-
-func (c *clientImpl) RunInTransaction(ctx context.Context, fn TransactionFunc, opts *sql.TxOptions) error {
+func (c *clientImpl) RunInReadOnlyTransaction(ctx context.Context, fn TransactionFunc) error {
 	// Create a new tracing span
-	ctx, span := obs.NewSpan(ctx, "RunInTransaction")
+	ctx, span := obs.NewSpan(ctx, "RunInReadOnlyTransaction")
 	defer span.End()
 
+	// Create logger from context
 	logger := obs.ToLogger(ctx)
 
-	c.EnsureConnectionIsOpen(ctx)
+	// Create read-only transaction
+	txn := c.db.NewReadOnlyTxn()
+	defer txn.Discard(ctx)
 
 	// Run function
-	tx, err := c.db.BeginTx(ctx, opts)
-	if err != nil {
-		return err
-	}
-
-	if err := fn(ctx, newTransaction(tx, c.redisClient, c.config)); err != nil {
-		if err := tx.Rollback(); err != nil {
-			logger.Warn().Err(err).Msg("rollback failed")
+	if err := fn(ctx, newTransaction(txn, c.redisClient, c.config)); err != nil {
+		if rollbackErr := txn.Discard(ctx); rollbackErr != nil {
+			logger.Warn().Err(rollbackErr).Msg("transaction rollback failed")
 			// We don't really need to return the rollback error if one occurs;
 			// the client is more interested in the underlying database layer error.
 		}
 		return err
-	} else {
-		if opts == nil || !opts.ReadOnly {
-			if err := tx.Commit(); err != nil {
-				return fmt.Errorf("transaction failed to commit: %w", err)
-			}
+	}
+
+	return nil
+}
+
+func (c *clientImpl) RunInTransaction(ctx context.Context, fn TransactionFunc) error {
+	// Create a new tracing span
+	ctx, span := obs.NewSpan(ctx, "RunInTransaction")
+	defer span.End()
+
+	// Create logger from context
+	logger := obs.ToLogger(ctx)
+
+	// Create transaction
+	txn := c.db.NewTxn()
+	defer txn.Discard(ctx)
+
+	// Run function
+	if err := fn(ctx, newTransaction(txn, c.redisClient, c.config)); err != nil {
+		if rollbackErr := txn.Discard(ctx); rollbackErr != nil {
+			logger.Warn().Err(rollbackErr).Msg("transaction rollback failed")
+			// We don't really need to return the rollback error if one occurs;
+			// the client is more interested in the underlying database layer error.
 		}
+		return err
+	}
+
+	// Commit the transaction
+	if err := txn.Commit(ctx); err != nil {
+		return fmt.Errorf("transaction failed to commit: %w", err)
 	}
 
 	return nil

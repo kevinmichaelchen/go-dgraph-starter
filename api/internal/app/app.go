@@ -23,11 +23,11 @@ func NewApp(c configuration.Config) App {
 func (a App) Run() {
 	config := a.config
 
-	//redisClient := db.NewRedisClient(config.RedisConfig)
+	redisClient := db.NewRedisClient(config.RedisConfig)
 
 	// Connect to the database
-	var dbClient db.Client
-	//dbClient := db.NewClient(gormDB, redisClient)
+	dgraphClient := config.DgraphConfig.Connect()
+	dbClient := db.NewClient(dgraphClient, redisClient, config)
 
 	svc := service.NewService(config, dbClient)
 

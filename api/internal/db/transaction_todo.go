@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
+	"github.com/dgraph-io/dgo/v200"
 	"time"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/models"
@@ -17,7 +17,7 @@ type TodoTransaction interface {
 }
 
 type todoTransactionImpl struct {
-	tx          *sql.Tx
+	tx          *dgo.Txn
 	redisClient RedisClient
 }
 
