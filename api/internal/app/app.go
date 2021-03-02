@@ -25,18 +25,22 @@ func NewApp(c configuration.Config) App {
 func (a App) Run() {
 	config := a.config
 
+	log.Info().Msg("Connecting to Redis...")
 	redisClient := db.NewRedisClient(config.RedisConfig)
 
 	// Connect to the database
+	log.Info().Msg("Connecting to Dgraph...")
 	dgraphClient := config.DgraphConfig.Connect()
 	dbClient := db.NewClient(dgraphClient, redisClient, config)
 
 	// Drop all data and schema
+	log.Info().Msg("Dropping all Dgraph data...")
 	if err := db.Nuke(context.Background(), dgraphClient); err != nil {
 		log.Fatal().Err(err).Msg("failed to nuke database")
 	}
 
 	// Build schema
+	log.Info().Msg("Building Dgraph schema...")
 	if err := db.BuildSchema(context.Background(), dgraphClient); err != nil {
 		log.Fatal().Err(err).Msg("failed to build database schema")
 	}
