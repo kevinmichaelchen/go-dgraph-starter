@@ -8,6 +8,8 @@ require (
 	github.com/go-redis/cache/v8 v8.3.1
 	github.com/go-redis/redis/v8 v8.6.0
 	github.com/golang/protobuf v1.4.3
+	github.com/graphql-go/graphql v0.7.9
+	github.com/graphql-go/handler v0.2.3
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/zerolog/v2 v2.0.0-rc.2
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.2
 	github.com/jackc/pgx/v4 v4.10.1

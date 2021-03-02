@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sync"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/MyOrg/go-dgraph-starter/internal/db"
+	"github.com/MyOrg/go-dgraph-starter/internal/graphql"
 	"github.com/MyOrg/go-dgraph-starter/internal/grpc"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
@@ -52,6 +54,10 @@ func (a App) Run() {
 	wg.Add(1)
 	grpcServer := grpc.NewServer(config, svc)
 	go grpcServer.Run()
+
+	wg.Add(1)
+	graphqlServer := graphql.NewServer(config, svc)
+	go graphqlServer.Run()
 
 	wg.Wait()
 }
