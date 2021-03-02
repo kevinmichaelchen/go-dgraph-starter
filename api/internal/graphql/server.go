@@ -29,7 +29,7 @@ func NewServer(config configuration.Config, service service.Service) Server {
 
 func (s Server) Run() {
 	h := handler.New(&handler.Config{
-		Schema:   buildSchema(),
+		Schema:   s.buildSchema(),
 		Pretty:   true,
 		GraphiQL: true,
 	})
