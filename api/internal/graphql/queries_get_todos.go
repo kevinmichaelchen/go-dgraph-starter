@@ -3,7 +3,6 @@ package graphql
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
 
@@ -20,38 +19,49 @@ const (
 	argBefore  = "before"
 )
 
+type TodosEdge struct {
+	Cursor string `json:"cursor"`
+	Node   Todo   `json:"node"`
+}
+
+type TodosPage struct {
+	TotalCount int         `json:"totalCount"`
+	Edges      []TodosEdge `json:"edges"`
+	PageInfo   PageInfo    `json:"pageInfo"`
+}
+
 func (s Server) buildFieldForGetTodos(todoType *graphql.Object) *graphql.Field {
 	typeEdge := graphql.NewObject(graphql.ObjectConfig{
 		Name: "TodosEdge",
 		Fields: graphql.Fields{
-			// TODO add fields
+			"node": &graphql.Field{
+				Type:        todoType,
+				Description: "A Todo",
+			},
+			"cursor": &graphql.Field{
+				Type:        graphql.String,
+				Description: "An opaque, base-64 encoded cursor",
+			},
 		},
 	})
-	typePageInfo := graphql.NewObject(graphql.ObjectConfig{
-		Name: "TodosPageInfo",
-		Fields: graphql.Fields{
-			// TODO add fields
-		},
-	})
+	typePageInfo := buildTypePageInfo()
 	typeTodosPage := graphql.NewObject(graphql.ObjectConfig{
 		Name: "TodosPage",
 		Fields: graphql.Fields{
 			"totalCount": &graphql.Field{
-				Type: graphql.Int,
+				Type:        graphql.Int,
 				Description: "Total number of items in database matching filter",
 			},
 			"edges": &graphql.Field{
-				Type: graphql.NewList(typeEdge),
+				Type:        graphql.NewList(typeEdge),
 				Description: "The items in the page",
 			},
 			"pageInfo": &graphql.Field{
-				Type: typePageInfo,
+				Type:        typePageInfo,
 				Description: "Information about the page",
 			},
 		},
 	})
-
-	graphql.NewList(todoType)
 
 	return &graphql.Field{
 		Type: typeTodosPage,
@@ -84,13 +94,34 @@ func (s Server) buildFieldForGetTodos(todoType *graphql.Object) *graphql.Field {
 	}
 }
 
-func buildResponseForGetTodos(in *todoV1.GetTodosResponse) ([]Todo, error) {
-	// totalCount := in.TotalCount
-	// TODO build response
-	return []Todo{
-		{"1", time.Now(), "Title 1", false},
-		{"2", time.Now(), "Title 2", false},
+func buildResponseForGetTodos(in *todoV1.GetTodosResponse) (TodosPage, error) {
+	edges, err := buildTodoEdges(in.Edges)
+	if err != nil {
+		return TodosPage{}, err
+	}
+	return TodosPage{
+		TotalCount: int(in.TotalCount),
+		Edges:      edges,
+		PageInfo: PageInfo{
+			HasNextPage: in.PageInfo.HasNextPage,
+			EndCursor:   in.PageInfo.EndCursor,
+		},
 	}, nil
+}
+
+func buildTodoEdges(in []*todoV1.TodoEdge) ([]TodosEdge, error) {
+	var out []TodosEdge
+	for _, e := range in {
+		t, err := buildTodo(e.Todo)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, TodosEdge{
+			Cursor: e.Cursor,
+			Node:   t,
+		})
+	}
+	return out, nil
 }
 
 func buildArgsForGetTodos() graphql.FieldConfigArgument {
@@ -153,13 +184,13 @@ func buildGetTodosRequestFromArgs(args map[string]interface{}) (*todoV1.GetTodos
 	// TODO parse WHERE args
 
 	if value, ok := args[argOrderBy]; ok {
-		if val, ok := value.(int32); ok {
+		if val, ok := value.(int); ok {
 			request.OrderBy = todoV1.OrderTodosBy(val)
 			if request.OrderBy == todoV1.OrderTodosBy_ORDER_TODOS_BY_UNSPECIFIED {
 				request.OrderBy = todoV1.OrderTodosBy_ORDER_TODOS_BY_ID_ASC
 			}
 		} else {
-			return nil, fmt.Errorf("'%s' not an integer", argOrderBy)
+			return nil, fmt.Errorf("'%s' not an integer: %T", argOrderBy, value)
 		}
 	}
 
