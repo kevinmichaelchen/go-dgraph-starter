@@ -8,16 +8,13 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-const (
-	argID = "id"
-)
-
-func (s Server) buildFieldForGetTodo(todoType *graphql.Object) *graphql.Field {
+func (s Server) buildFieldForDeleteTodo(todoType *graphql.Object) *graphql.Field {
 	return &graphql.Field{
-		Type: todoType,
+		Type:        todoType,
+		Description: "Delete Todo",
 		Args: graphql.FieldConfigArgument{
 			argID: &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type: graphql.NewNonNull(graphql.String),
 			},
 		},
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
@@ -28,28 +25,29 @@ func (s Server) buildFieldForGetTodo(todoType *graphql.Object) *graphql.Field {
 			logger.Info().Msgf("Received GraphQL request to %s with args: %v", p.Info.FieldName, args)
 
 			// Build the request protobuf from the GraphQL args
-			request, err := buildGetTodoRequestFromArgs(args)
+			request, err := buildDeleteTodoRequestFromArgs(args)
 			if err != nil {
 				return nil, err
 			}
 
 			// Call the service
-			res, err := s.service.GetTodo(ctx, request)
+			res, err := s.service.DeleteTodo(ctx, request)
 			if err != nil {
 				return nil, err
 			}
 
+			logger.Info().Msgf("got response: %v", res)
+
 			// Build the response protobuf and return it
-			return buildTodo(res.Todo)
+			return nil, nil
 		},
-		Description: "Retrieve a Todo object",
 	}
 }
 
-func buildGetTodoRequestFromArgs(args map[string]interface{}) (*todoV1.GetTodoRequest, error) {
+func buildDeleteTodoRequestFromArgs(args map[string]interface{}) (*todoV1.DeleteTodoRequest, error) {
 	if value, ok := args[argID]; ok {
 		if val, ok := value.(string); ok {
-			return &todoV1.GetTodoRequest{
+			return &todoV1.DeleteTodoRequest{
 				Id: val,
 			}, nil
 		} else {

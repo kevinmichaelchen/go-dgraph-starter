@@ -9,15 +9,17 @@ import (
 )
 
 const (
-	argID = "id"
+	argTitle = "title"
+	argDone  = "done"
 )
 
-func (s Server) buildFieldForGetTodo(todoType *graphql.Object) *graphql.Field {
+func (s Server) buildFieldForCreateTodo(todoType *graphql.Object) *graphql.Field {
 	return &graphql.Field{
-		Type: todoType,
+		Type:        todoType,
+		Description: "Create new Todo",
 		Args: graphql.FieldConfigArgument{
-			argID: &graphql.ArgumentConfig{
-				Type: graphql.String,
+			argTitle: &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
 			},
 		},
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
@@ -28,13 +30,13 @@ func (s Server) buildFieldForGetTodo(todoType *graphql.Object) *graphql.Field {
 			logger.Info().Msgf("Received GraphQL request to %s with args: %v", p.Info.FieldName, args)
 
 			// Build the request protobuf from the GraphQL args
-			request, err := buildGetTodoRequestFromArgs(args)
+			request, err := buildCreateTodoRequestFromArgs(args)
 			if err != nil {
 				return nil, err
 			}
 
 			// Call the service
-			res, err := s.service.GetTodo(ctx, request)
+			res, err := s.service.CreateTodo(ctx, request)
 			if err != nil {
 				return nil, err
 			}
@@ -42,20 +44,19 @@ func (s Server) buildFieldForGetTodo(todoType *graphql.Object) *graphql.Field {
 			// Build the response protobuf and return it
 			return buildTodo(res.Todo)
 		},
-		Description: "Retrieve a Todo object",
 	}
 }
 
-func buildGetTodoRequestFromArgs(args map[string]interface{}) (*todoV1.GetTodoRequest, error) {
-	if value, ok := args[argID]; ok {
+func buildCreateTodoRequestFromArgs(args map[string]interface{}) (*todoV1.CreateTodoRequest, error) {
+	if value, ok := args[argTitle]; ok {
 		if val, ok := value.(string); ok {
-			return &todoV1.GetTodoRequest{
-				Id: val,
+			return &todoV1.CreateTodoRequest{
+				Title: val,
 			}, nil
 		} else {
-			return nil, fmt.Errorf("'%s' not a string", argID)
+			return nil, fmt.Errorf("'%s' not a string", argTitle)
 		}
 	} else {
-		return nil, fmt.Errorf("must specify '%s'", argID)
+		return nil, fmt.Errorf("must specify '%s'", argTitle)
 	}
 }

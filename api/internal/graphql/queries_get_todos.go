@@ -69,11 +69,9 @@ func (s Server) buildFieldForGetTodos(todoType *graphql.Object) *graphql.Field {
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			ctx := p.Context
 			logger := obs.ToLogger(ctx)
-			logger.Info().Msg("Resolving GraphQL field: hello")
 
 			args := p.Args
-
-			logger.Info().Msgf("args %v", args)
+			logger.Info().Msgf("Received GraphQL request to %s with args: %v", p.Info.FieldName, args)
 
 			// Build the request protobuf from the GraphQL args
 			request, err := buildGetTodosRequestFromArgs(args)
