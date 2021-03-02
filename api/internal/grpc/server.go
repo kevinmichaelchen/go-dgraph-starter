@@ -48,9 +48,7 @@ func (s Server) Run() {
 	// Register reflection service on gRPC server.
 	reflection.Register(grpcServer)
 
-	log.Info().Msgf("Registered normal gRPC services on %s...", address)
-
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatal().Err(err).Msgf("Failed to serve gRPC on address: %s", address)
+		log.Fatal().Err(err).Msgf("Failed to serve %s on address: %s", s, address)
 	}
 }
