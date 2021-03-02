@@ -15,7 +15,22 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 }
 
 func (s Service) GetTodo(ctx context.Context, request *todoV1.GetTodoRequest) (*todoV1.GetTodoResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "Unimplemented")
+	todos := map[string]*todoV1.Todo{
+		"1": {
+			Id:        "1",
+			Title:     "Todo 1",
+			CreatedAt: ptypes.TimestampNow(),
+		},
+		"2": {
+			Id:        "2",
+			Title:     "Todo 2",
+			CreatedAt: ptypes.TimestampNow(),
+		},
+	}
+
+	return &todoV1.GetTodoResponse{
+		Todo: todos[request.Id],
+	}, nil
 }
 
 func (s Service) GetTodos(ctx context.Context, request *todoV1.GetTodosRequest) (*todoV1.GetTodosResponse, error) {
