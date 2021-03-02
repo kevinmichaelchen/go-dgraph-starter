@@ -31,7 +31,7 @@ message GetTodosResponse {
 
 message TodoEdge {
     string cursor = 1;
-    Todo todo = 2;
+    Todo node = 2;
 }
 
 message TodosWhere {
