@@ -28,30 +28,38 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 	err = s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
 		return tx.CreateTodo(ctx, todo)
 	})
+
 	if err != nil {
 		return nil, err
 	}
+
 	return &todoV1.CreateTodoResponse{
 		Todo: todo,
 	}, nil
 }
 
 func (s Service) GetTodo(ctx context.Context, request *todoV1.GetTodoRequest) (*todoV1.GetTodoResponse, error) {
-	todos := map[string]*todoV1.Todo{
-		"1": {
-			Id:        "1",
-			Title:     "Todo 1",
-			CreatedAt: ptypes.TimestampNow(),
-		},
-		"2": {
-			Id:        "2",
-			Title:     "Todo 2",
-			CreatedAt: ptypes.TimestampNow(),
-		},
+	// requesterID, err := getUserID(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	var todo *todoV1.Todo
+
+	if err := s.dbClient.RunInReadOnlyTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
+		if t, err := tx.GetTodoByID(ctx, request.Id); err != nil {
+			return err
+		} else {
+			todo = t
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	return &todoV1.GetTodoResponse{
-		Todo: todos[request.Id],
+		Todo: todo,
 	}, nil
 }
 

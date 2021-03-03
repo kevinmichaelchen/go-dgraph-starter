@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
@@ -17,13 +16,13 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 	ctx, span := obs.NewSpan(ctx, "CreateTodo")
 	defer span.End()
 
+	logger := obs.ToLogger(ctx)
+
 	now, err := ptypes.Timestamp(item.CreatedAt)
 	if err != nil {
 		return err
 	}
 	nowStr := now.Format(time.RFC3339)
-
-	logger := obs.ToLogger(ctx)
 
 	type User struct {
 		Uid string `json:"uid,omitempty"`
@@ -93,10 +92,4 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 	logger.Info().Msgf("Created new Todo in %s", latency(res))
 
 	return nil
-}
-
-func latency(res *api.Response) string {
-	elapsedMilliseconds := float64(res.Latency.TotalNs) / float64(time.Millisecond)
-	elapsedMicroseconds := float64(res.Latency.TotalNs) / float64(time.Millisecond)
-	return fmt.Sprintf("%f ms = %f μs = %d ns", elapsedMilliseconds, elapsedMicroseconds, res.Latency.TotalNs)
 }

@@ -12,7 +12,7 @@ import (
 )
 
 type TodoTransaction interface {
-	GetTodoByID(ctx context.Context, id string) (*models.Todo, error)
+	GetTodoByID(ctx context.Context, id string) (*todoV1.Todo, error)
 	CreateTodo(ctx context.Context, item *todoV1.Todo) error
 }
 

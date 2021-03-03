@@ -1,7 +1,11 @@
 package db
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/dgraph-io/dgo/v200"
+	"github.com/dgraph-io/dgo/v200/protos/api"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
 )
@@ -20,4 +24,10 @@ func newTransaction(tx *dgo.Txn, redisClient RedisClient, config configuration.C
 		tx:                  tx,
 		todoTransactionImpl: todoTransactionImpl{tx: tx, redisClient: redisClient},
 	}
+}
+
+func latency(res *api.Response) string {
+	elapsedMilliseconds := float64(res.Latency.TotalNs) / float64(time.Millisecond)
+	elapsedMicroseconds := int64(res.Latency.TotalNs) / int64(time.Microsecond)
+	return fmt.Sprintf("%f ms = %d μs = %d ns", elapsedMilliseconds, elapsedMicroseconds, res.Latency.TotalNs)
 }
