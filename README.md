@@ -5,3 +5,8 @@
 [![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com)
 
 This is a Todo List app built with [Dgraph](https://dgraph.io/)-backed [gRPC](https://grpc.io/) and [GraphQL](https://graphql.org/) APIs, combined with a [NextJS](https://nextjs.org/) + [Chakra-UI](https://chakra-ui.com/) powered front-end.
+
+### In Progress
+This project is still very much in progress.
+
+https://github.com/kevinmichaelchen/go-dgraph-starter/projects/1

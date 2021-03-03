@@ -3,9 +3,15 @@
 ## Getting started
 Running
 ```
+docker-compose up -d
+```
+should spin up the dependencies: Jaeger, Redis, Dgraph.
+
+Then running
+```
 make
 ```
-should spin up everything.
+should start the Go app locally.
 
 ## Dgraph UI
 You can access the Dgraph UI at [localhost:8000](http://localhost:8000/).

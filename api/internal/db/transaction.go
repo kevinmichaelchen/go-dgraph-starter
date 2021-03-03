@@ -29,5 +29,5 @@ func newTransaction(tx *dgo.Txn, redisClient RedisClient, config configuration.C
 func latency(res *api.Response) string {
 	elapsedMilliseconds := float64(res.Latency.TotalNs) / float64(time.Millisecond)
 	elapsedMicroseconds := int64(res.Latency.TotalNs) / int64(time.Microsecond)
-	return fmt.Sprintf("%f ms = %d μs = %d ns", elapsedMilliseconds, elapsedMicroseconds, res.Latency.TotalNs)
+	return fmt.Sprintf("%.2f ms === %d μs === %d ns", elapsedMilliseconds, elapsedMicroseconds, res.Latency.TotalNs)
 }
