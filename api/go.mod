@@ -12,13 +12,12 @@ require (
 	github.com/graphql-go/handler v0.2.3
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/zerolog/v2 v2.0.0-rc.2
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.2
-	github.com/jackc/pgx/v4 v4.10.1
-	github.com/lib/pq v1.9.0 // indirect
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.20.0
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
+	github.com/stretchr/objx v0.2.0 // indirect
 	go.opentelemetry.io/otel v0.17.0
 	go.opentelemetry.io/otel/exporters/trace/jaeger v0.17.0
 	go.opentelemetry.io/otel/sdk v0.17.0
