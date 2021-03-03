@@ -90,13 +90,13 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 
 	// TODO Insert into cache
 
-	logger.Info().Msgf("created new Todo in %s", latency(res))
+	logger.Info().Msgf("Created new Todo in %s", latency(res))
 
 	return nil
 }
 
 func latency(res *api.Response) string {
-	elapsedMilliseconds := int64(res.Latency.TotalNs) / int64(time.Millisecond)
-	elapsedMicroseconds := int64(res.Latency.TotalNs) / int64(time.Millisecond)
-	return fmt.Sprintf("%d ms = %d μs = %d ns", elapsedMilliseconds, elapsedMicroseconds, res.Latency.TotalNs)
+	elapsedMilliseconds := float64(res.Latency.TotalNs) / float64(time.Millisecond)
+	elapsedMicroseconds := float64(res.Latency.TotalNs) / float64(time.Millisecond)
+	return fmt.Sprintf("%f ms = %f μs = %d ns", elapsedMilliseconds, elapsedMicroseconds, res.Latency.TotalNs)
 }
