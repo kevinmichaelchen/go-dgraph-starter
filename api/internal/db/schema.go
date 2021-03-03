@@ -8,6 +8,7 @@ import (
 )
 
 const schema = `
+  id: string @index(exact) .
   title: string @index(term) .
   name: string @index(term) .
   created_at: datetime @index(day) .
@@ -15,6 +16,7 @@ const schema = `
   creator: uid .
 
   type Todo {
+    id
     created_at
     title
     is_done
@@ -22,6 +24,7 @@ const schema = `
   }
 
   type User {
+    id
     name
     created_at
   }

@@ -7,6 +7,24 @@ make
 ```
 should spin up everything.
 
+## Dgraph UI
+You can access the Dgraph UI at [localhost:8000](http://localhost:8000/).
+
+Query examples:
+```
+{
+  todos(func: eq(dgraph.type, "Todo")) {
+    title
+    created_at
+    is_done
+    creator {
+      name
+      created_at
+    }
+  }
+}
+```
+
 ## Dependencies
 This is a Go-based back-end using:
 * [gRPC](https://grpc.io/) for high-performance data transport

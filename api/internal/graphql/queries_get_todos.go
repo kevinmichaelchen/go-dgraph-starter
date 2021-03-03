@@ -110,7 +110,7 @@ func buildResponseForGetTodos(in *todoV1.GetTodosResponse) (TodosPage, error) {
 func buildTodoEdges(in []*todoV1.TodoEdge) ([]TodosEdge, error) {
 	var out []TodosEdge
 	for _, e := range in {
-		t, err := buildTodo(e.Todo)
+		t, err := buildTodo(e.Node)
 		if err != nil {
 			return nil, err
 		}
