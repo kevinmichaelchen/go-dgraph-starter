@@ -12,6 +12,16 @@ func nquadStr(subject, predicate, objectValue string) *api.NQuad {
 	}
 }
 
+func nquadAll(subject string) *api.NQuad {
+	return &api.NQuad{
+		Subject:   subject,
+		Predicate: "_STAR_ALL",
+		ObjectValue: &api.Value{
+			Val: &api.Value_DefaultVal{DefaultVal: "_STAR_ALL"},
+		},
+	}
+}
+
 func nquadBool(subject, predicate string, objectValue bool) *api.NQuad {
 	return &api.NQuad{
 		Subject:   subject,
