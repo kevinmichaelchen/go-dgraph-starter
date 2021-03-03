@@ -95,5 +95,17 @@ func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoReque
 }
 
 func (s Service) DeleteTodo(ctx context.Context, request *todoV1.DeleteTodoRequest) (*todoV1.DeleteTodoResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "Unimplemented")
+	var response *todoV1.DeleteTodoResponse
+	if err := s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
+		if res, err := tx.DeleteTodo(ctx, request.Id); err != nil {
+			return err
+		} else {
+			response = res
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }

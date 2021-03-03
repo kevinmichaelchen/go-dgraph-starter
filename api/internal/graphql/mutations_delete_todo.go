@@ -9,8 +9,17 @@ import (
 )
 
 func (s Server) buildFieldForDeleteTodo(todoType *graphql.Object) *graphql.Field {
+	deleteResponseType := graphql.NewObject(graphql.ObjectConfig{
+		Name: "DeleteTodo",
+		Fields: graphql.Fields{
+			"success": &graphql.Field{
+				Type:        graphql.Boolean,
+				Description: "Always true.",
+			},
+		},
+	})
 	return &graphql.Field{
-		Type:        todoType,
+		Type:        deleteResponseType,
 		Description: "Delete Todo",
 		Args: graphql.FieldConfigArgument{
 			argID: &graphql.ArgumentConfig{
@@ -31,15 +40,17 @@ func (s Server) buildFieldForDeleteTodo(todoType *graphql.Object) *graphql.Field
 			}
 
 			// Call the service
-			res, err := s.service.DeleteTodo(ctx, request)
+			_, err = s.service.DeleteTodo(ctx, request)
 			if err != nil {
 				return nil, err
 			}
 
-			logger.Info().Msgf("got response: %v", res)
+			type deleteResponse struct {
+				Success bool `json:"success"`
+			}
 
 			// Build the response protobuf and return it
-			return nil, nil
+			return deleteResponse{Success: true}, nil
 		},
 	}
 }

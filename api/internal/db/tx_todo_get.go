@@ -50,7 +50,7 @@ func (tx *todoTransactionImpl) GetTodoByID(ctx context.Context, id string) (*tod
 	logger.Info().Msgf("Retrieved Todo in %s", latency(res))
 
 	if len(r.Todo) == 0 {
-		return nil, errors.New("no todo found")
+		return nil, ErrNotFound
 	} else if len(r.Todo) > 1 {
 		return nil, errors.New("more than one todo found with that id")
 	}
