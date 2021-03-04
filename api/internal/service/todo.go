@@ -12,6 +12,12 @@ import (
 	"github.com/rs/xid"
 )
 
+const (
+	MinPageSize = 1
+	DefaultPageSize = 3
+	MaxPageSize = 50
+)
+
 func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoRequest) (*todoV1.CreateTodoResponse, error) {
 	requesterID, err := getUserID(ctx)
 	if err != nil {
@@ -64,6 +70,25 @@ func (s Service) GetTodo(ctx context.Context, request *todoV1.GetTodoRequest) (*
 }
 
 func (s Service) GetTodos(ctx context.Context, request *todoV1.GetTodosRequest) (*todoV1.GetTodosResponse, error) {
+	// Validate inputs
+	if f := request.PaginationRequest.GetForwardPaginationInfo(); f != nil {
+		if f.First < MinPageSize || f.First > MaxPageSize {
+			f.First = DefaultPageSize
+		}
+	} else if b := request.PaginationRequest.GetBackwardPaginationInfo(); b != nil {
+		if b.Last < MinPageSize || b.Last > MaxPageSize {
+			b.Last = DefaultPageSize
+		}
+	} else {
+		request.PaginationRequest = &todoV1.PaginationRequest{
+			Request: &todoV1.PaginationRequest_ForwardPaginationInfo{
+				ForwardPaginationInfo: &todoV1.ForwardPaginationRequest{
+					First: DefaultPageSize,
+				},
+			},
+		}
+	}
+
 	var response *todoV1.GetTodosResponse
 	if err := s.dbClient.RunInReadOnlyTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
 		if res, err := tx.GetTodos(ctx, request); err != nil {

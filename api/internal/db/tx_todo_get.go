@@ -2,8 +2,11 @@ package db
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/models"
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
@@ -17,19 +20,36 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 
 	logger := obs.ToLogger(ctx)
 
-	// The requested page-size (or the default page size if the client input was invalid)
-	// TODO do not hard-code
-	pageSize := 20
-
 	// A struct for unmarshalling JSON responses into
 	type response struct {
 		Todo []models.Todo `json:"todo"`
 	}
 
+	// The requested page-size
+	var pageSize int
+	var base64EncodedCursor string
+	if f := in.PaginationRequest.GetForwardPaginationInfo(); f != nil {
+		pageSize = int(f.First)
+		base64EncodedCursor = f.After
+	} else if b := in.PaginationRequest.GetBackwardPaginationInfo(); b != nil {
+		pageSize = -1 * int(b.Last)
+		base64EncodedCursor = b.Before
+	}
+
+	if c, err := parseCursor(base64EncodedCursor); err != nil {
+		return nil, err
+	} else {
+		
+	}
+
+	cursorDirection := "gt"
+	cursorField := "created_at"
+	cursor := "2021-03-04 14:15:00"
+
 	// A query to get all Todos
-	query := `
-		query getTodo($id: string) {
-			todo(func: eq(dgraph.type, "Todo")) {
+	query := fmt.Sprintf(`
+		query getTodo($cursor: string, $pageSize: int) {
+			todo(func: eq(dgraph.type, "Todo"), %s(%s, $cursor), orderasc: created_at, first: $pageSize) {
 				id
 				created_at
 				title
@@ -41,10 +61,13 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 				}
 			}
 		}
-	`
+	`, cursorDirection, cursorField)
 
 	// Run query
-	res, err := tx.tx.Query(ctx, query)
+	res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{
+		"$cursor": cursor,
+		"$pageSize": strconv.Itoa(pageSize),
+	})
 
 	// Handle error
 	if err != nil {
@@ -75,14 +98,15 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 			AuthorId:  todo.Creator.ID,
 		}
 		edges = append(edges, &todoV1.TodoEdge{
-			Cursor: todoPB.Id,
+			// TODO implement
+			Cursor: newCursor(),
 			Node:   todoPB,
 		})
 	}
 
 	numEdges := len(edges)
 	var endCursor string
-	if numEdges > 0 {
+	if numEdges > 0 && edges != nil {
 		endCursor = edges[numEdges-1].Cursor
 	}
 

@@ -1,12 +1,37 @@
 package db
 
-import paginationV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+import (
+	"encoding/base64"
+	paginationV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+)
 
 const (
 	DefaultPageSize = 20
 	MinPageSize     = 1
 	MaxPageSize     = 100
 )
+
+func newCursor() string {
+
+}
+
+func parseCursor(in string) (Cursor, error) {
+	// step 1: base-64 decode
+	var decoded string
+	if cursorBytes, err := base64.StdEncoding.DecodeString(in); err != nil {
+		return Cursor{}, err
+	} else {
+		decoded = string(cursorBytes)
+	}
+
+	// step 2: parse id:
+}
+
+type Cursor struct {
+	ascending bool
+	field string // Dgraph field name, e.g., created_at
+	value string
+}
 
 func getCursorAndPageSize(in *paginationV1.PaginationRequest) (string, int) {
 	if in == nil {
