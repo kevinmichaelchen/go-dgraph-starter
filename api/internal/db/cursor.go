@@ -2,7 +2,9 @@ package db
 
 import (
 	"encoding/base64"
+	"errors"
 	paginationV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	"strings"
 )
 
 const (
@@ -36,9 +38,15 @@ func parseCursor(in string) (Cursor, error) {
 		decoded = string(cursorBytes)
 	}
 
-	// step 2: parse id:
+	r := strings.Split(decoded, ":")
+	if len(r) != 2 {
+		return Cursor{}, errors.New("base64-decoded cursor should include 2 elements with a colon delimiter")
+	}
 
-	// TODO created_at may not always be the cursor field, don't hard-code
+	return Cursor{
+		field: r[0],
+		value: r[1],
+	}, nil
 }
 
 func getPaginationInfo(in *paginationV1.PaginationRequest) (string, int, bool) {
