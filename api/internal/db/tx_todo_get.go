@@ -64,7 +64,7 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 
 	// Run query
 	res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{
-		"$cursor": cursor,
+		"$cursor":   cursor,
 		"$pageSize": strconv.Itoa(pageSize),
 	})
 
