@@ -64,30 +64,19 @@ func (s Service) GetTodo(ctx context.Context, request *todoV1.GetTodoRequest) (*
 }
 
 func (s Service) GetTodos(ctx context.Context, request *todoV1.GetTodosRequest) (*todoV1.GetTodosResponse, error) {
-	return &todoV1.GetTodosResponse{
-		Edges: []*todoV1.TodoEdge{
-			{
-				Cursor: "1",
-				Node: &todoV1.Todo{
-					Id:        "1",
-					Title:     "Todo 1",
-					CreatedAt: ptypes.TimestampNow(),
-				},
-			},
-			{
-				Cursor: "2",
-				Node: &todoV1.Todo{
-					Id:        "2",
-					Title:     "Todo 2",
-					CreatedAt: ptypes.TimestampNow(),
-				},
-			},
-		},
-		PageInfo: &todoV1.PageInfo{
-			EndCursor: "2",
-		},
-		TotalCount: 2,
-	}, nil
+	var response *todoV1.GetTodosResponse
+	if err := s.dbClient.RunInReadOnlyTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
+		if res, err := tx.GetTodos(ctx, request); err != nil {
+			return err
+		} else {
+			response = res
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoRequest) (*todoV1.UpdateTodoResponse, error) {

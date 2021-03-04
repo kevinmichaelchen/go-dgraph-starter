@@ -13,6 +13,7 @@ import (
 
 type TodoTransaction interface {
 	GetTodoByID(ctx context.Context, id string) (*todoV1.Todo, error)
+	GetTodos(ctx context.Context, in *todoV1.GetTodosRequest) (*todoV1.GetTodosResponse, error)
 	CreateTodo(ctx context.Context, item *todoV1.Todo) error
 	DeleteTodo(ctx context.Context, id string) (*todoV1.DeleteTodoResponse, error)
 }
