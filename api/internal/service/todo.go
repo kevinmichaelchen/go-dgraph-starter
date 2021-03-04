@@ -12,12 +12,6 @@ import (
 	"github.com/rs/xid"
 )
 
-const (
-	MinPageSize = 1
-	DefaultPageSize = 3
-	MaxPageSize = 50
-)
-
 func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoRequest) (*todoV1.CreateTodoResponse, error) {
 	requesterID, err := getUserID(ctx)
 	if err != nil {
@@ -71,19 +65,23 @@ func (s Service) GetTodo(ctx context.Context, request *todoV1.GetTodoRequest) (*
 
 func (s Service) GetTodos(ctx context.Context, request *todoV1.GetTodosRequest) (*todoV1.GetTodosResponse, error) {
 	// Validate inputs
+	if request.OrderBy == todoV1.OrderTodosBy_ORDER_TODOS_BY_UNSPECIFIED {
+		// New to old
+		request.OrderBy = todoV1.OrderTodosBy_ORDER_TODOS_BY_CREATED_AT_DESC
+	}
 	if f := request.PaginationRequest.GetForwardPaginationInfo(); f != nil {
-		if f.First < MinPageSize || f.First > MaxPageSize {
-			f.First = DefaultPageSize
+		if f.First < db.MinPageSize || f.First > db.MaxPageSize {
+			f.First = db.DefaultPageSize
 		}
 	} else if b := request.PaginationRequest.GetBackwardPaginationInfo(); b != nil {
-		if b.Last < MinPageSize || b.Last > MaxPageSize {
-			b.Last = DefaultPageSize
+		if b.Last < db.MinPageSize || b.Last > db.MaxPageSize {
+			b.Last = db.DefaultPageSize
 		}
 	} else {
 		request.PaginationRequest = &todoV1.PaginationRequest{
 			Request: &todoV1.PaginationRequest_ForwardPaginationInfo{
 				ForwardPaginationInfo: &todoV1.ForwardPaginationRequest{
-					First: DefaultPageSize,
+					First: db.DefaultPageSize,
 				},
 			},
 		}

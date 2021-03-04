@@ -6,13 +6,25 @@ import (
 )
 
 const (
-	DefaultPageSize = 20
 	MinPageSize     = 1
-	MaxPageSize     = 100
+	DefaultPageSize = 3
+	MaxPageSize     = 50
 )
 
-func newCursor() string {
+type Cursor struct {
+	field string // Dgraph field name, e.g., "created_at"
+	value string // cursor value, e.g., "2021-03-04 14:15:00"
+}
 
+func (c Cursor) encode() string {
+	return base64.StdEncoding.EncodeToString([]byte(c.field + ":" + c.value))
+}
+
+func newCursor(field, value string) Cursor {
+	return Cursor{
+		field: field,
+		value: value,
+	}
 }
 
 func parseCursor(in string) (Cursor, error) {
@@ -25,35 +37,38 @@ func parseCursor(in string) (Cursor, error) {
 	}
 
 	// step 2: parse id:
+
+	// TODO created_at may not always be the cursor field, don't hard-code
 }
 
-type Cursor struct {
-	ascending bool
-	field string // Dgraph field name, e.g., created_at
-	value string
-}
-
-func getCursorAndPageSize(in *paginationV1.PaginationRequest) (string, int) {
+func getPaginationInfo(in *paginationV1.PaginationRequest) (string, int, bool) {
 	if in == nil {
-		return "", DefaultPageSize
+		return "", DefaultPageSize, true
 	}
 	pageSize := DefaultPageSize
 	var count int32
 	var cursor string
+	var forwardsPagination bool
 	if f := in.GetForwardPaginationInfo(); f != nil {
 		count = f.First
 		cursor = f.After
+		forwardsPagination = true
+
+		if cursor == "" {
+			cursor = ""
+		}
 	} else if b := in.GetBackwardPaginationInfo(); b != nil {
 		count = b.Last
 		cursor = b.Before
+		forwardsPagination = false
 	}
 	if count >= MinPageSize && count <= MaxPageSize {
 		pageSize = int(count)
 	}
-	return cursor, pageSize
+	return cursor, pageSize, forwardsPagination
 }
 
-func emptyCursor(prevCursor string) *paginationV1.PageInfo {
+func emptyPageInfo() *paginationV1.PageInfo {
 	return &paginationV1.PageInfo{
 		EndCursor:   "",
 		HasNextPage: false,

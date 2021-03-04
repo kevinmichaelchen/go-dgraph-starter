@@ -2,11 +2,11 @@ package db
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/models"
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
@@ -22,29 +22,28 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 
 	// A struct for unmarshalling JSON responses into
 	type response struct {
-		Todo []models.Todo `json:"todo"`
+		Todos []models.Todo `json:"todo"`
 	}
 
 	// The requested page-size
-	var pageSize int
-	var base64EncodedCursor string
-	if f := in.PaginationRequest.GetForwardPaginationInfo(); f != nil {
-		pageSize = int(f.First)
-		base64EncodedCursor = f.After
-	} else if b := in.PaginationRequest.GetBackwardPaginationInfo(); b != nil {
-		pageSize = -1 * int(b.Last)
-		base64EncodedCursor = b.Before
+	base64EncodedCursor, pageSize, isForwardsPagination := getPaginationInfo(in.PaginationRequest)
+
+	var cursorDirection string
+	if isForwardsPagination {
+		cursorDirection = "gt"
+	} else {
+		cursorDirection = "lt"
 	}
 
+	// TODO handle OrderBy
+
+	var cursorField, cursor string
 	if c, err := parseCursor(base64EncodedCursor); err != nil {
 		return nil, err
 	} else {
-		
+		cursorField = c.field
+		cursor = c.value
 	}
-
-	cursorDirection := "gt"
-	cursorField := "created_at"
-	cursor := "2021-03-04 14:15:00"
 
 	// A query to get all Todos
 	query := fmt.Sprintf(`
@@ -83,8 +82,16 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 	// Log latency
 	logger.Info().Msgf("Retrieved Todos in %s", latency(res))
 
+	if len(r.Todos) == 0 {
+		return &todoV1.GetTodosResponse{
+			Edges:      []*todoV1.TodoEdge{},
+			PageInfo:   emptyPageInfo(),
+			TotalCount: 0,
+		}, nil
+	}
+
 	var edges []*todoV1.TodoEdge
-	for _, todo := range r.Todo {
+	for _, todo := range r.Todos {
 		createdAt, err := ptypes.TimestampProto(todo.CreatedAt)
 		if err != nil {
 			return nil, err
@@ -97,9 +104,10 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 			Done:      todo.Done,
 			AuthorId:  todo.Creator.ID,
 		}
+
 		edges = append(edges, &todoV1.TodoEdge{
-			// TODO implement
-			Cursor: newCursor(),
+			// TODO created_at may not always be the cursor field, don't hard-code
+			Cursor: newCursor(cursorField, todo.CreatedAt.Format(time.RFC3339)).encode(),
 			Node:   todoPB,
 		})
 	}
