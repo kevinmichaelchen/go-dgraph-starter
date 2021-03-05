@@ -22,17 +22,20 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 
 	// A struct for unmarshalling JSON responses into
 	type response struct {
-		Todos []models.Todo `json:"todo"`
+		Todos []models.Todo `json:"todos"`
 	}
 
 	// The requested page-size
 	base64EncodedCursor, pageSize, isForwardsPagination := getPaginationInfo(in.PaginationRequest)
 
 	var cursorDirection string
+	var orderKey string
 	if isForwardsPagination {
 		cursorDirection = "gt"
+		orderKey = "orderasc"
 	} else {
 		cursorDirection = "lt"
+		orderKey = "orderdesc"
 	}
 
 	// TODO handle OrderBy
@@ -47,8 +50,8 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 
 	// A query to get all Todos
 	query := fmt.Sprintf(`
-		query getTodo($cursor: string, $pageSize: int) {
-			todo(func: eq(dgraph.type, "Todo"), orderasc: created_at, first: $pageSize) @filter(%s(%s, $cursor)) {
+		query getTodos($cursor: string, $pageSize: int) {
+			todos(func: eq(dgraph.type, "Todo"), %s: created_at, first: $pageSize) @filter(%s(%s, $cursor)) {
 				id
 				created_at
 				title
@@ -60,7 +63,7 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 				}
 			}
 		}
-	`, cursorDirection, cursorField)
+	`, orderKey, cursorDirection, cursorField)
 
 	// Run query
 	res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{
