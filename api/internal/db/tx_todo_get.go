@@ -48,7 +48,7 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 	// A query to get all Todos
 	query := fmt.Sprintf(`
 		query getTodo($cursor: string, $pageSize: int) {
-			todo(func: eq(dgraph.type, "Todo"), %s(%s, $cursor), orderasc: created_at, first: $pageSize) {
+			todo(func: eq(dgraph.type, "Todo"), orderasc: created_at, first: $pageSize) @filter(%s(%s, $cursor)) {
 				id
 				created_at
 				title

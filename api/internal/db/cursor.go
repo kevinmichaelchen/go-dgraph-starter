@@ -15,7 +15,7 @@ const (
 
 type Cursor struct {
 	field string // Dgraph field name, e.g., "created_at"
-	value string // cursor value, e.g., "2021-03-04 14:15:00"
+	value string // cursor value, e.g., "2021-03-04T14:15:00"
 }
 
 func (c Cursor) encode() string {
@@ -30,6 +30,14 @@ func newCursor(field, value string) Cursor {
 }
 
 func parseCursor(in string) (Cursor, error) {
+	if in == "" {
+		return Cursor{
+			// if client doesn't specify a cursor, we'll default to using creation time
+			field: "created_at",
+			value: "0001-01-01T00:00:00",
+		}, nil
+	}
+
 	// step 1: base-64 decode
 	var decoded string
 	if cursorBytes, err := base64.StdEncoding.DecodeString(in); err != nil {
