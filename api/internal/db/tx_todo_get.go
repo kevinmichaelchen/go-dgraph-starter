@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/models"
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
@@ -17,19 +20,38 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 
 	logger := obs.ToLogger(ctx)
 
-	// The requested page-size (or the default page size if the client input was invalid)
-	// TODO do not hard-code
-	pageSize := 20
-
 	// A struct for unmarshalling JSON responses into
 	type response struct {
-		Todo []models.Todo `json:"todo"`
+		Todos []models.Todo `json:"todos"`
+	}
+
+	// The requested page-size
+	base64EncodedCursor, pageSize, isForwardsPagination := getPaginationInfo(in.PaginationRequest)
+
+	var cursorDirection string
+	var orderKey string
+	if isForwardsPagination {
+		cursorDirection = "gt"
+		orderKey = "orderasc"
+	} else {
+		cursorDirection = "lt"
+		orderKey = "orderdesc"
+	}
+
+	// TODO handle OrderBy
+
+	var cursorField, cursor string
+	if c, err := parseCursor(ctx, base64EncodedCursor); err != nil {
+		return nil, err
+	} else {
+		cursorField = c.field
+		cursor = c.value
 	}
 
 	// A query to get all Todos
-	query := `
-		query getTodo($id: string) {
-			todo(func: eq(dgraph.type, "Todo")) {
+	query := fmt.Sprintf(`
+		query getTodos($cursor: string, $pageSize: int) {
+			todos(func: eq(dgraph.type, "Todo"), %s: created_at, first: $pageSize) @filter(%s(%s, $cursor)) {
 				id
 				created_at
 				title
@@ -41,10 +63,13 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 				}
 			}
 		}
-	`
+	`, orderKey, cursorDirection, cursorField)
 
 	// Run query
-	res, err := tx.tx.Query(ctx, query)
+	res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{
+		"$cursor":   cursor,
+		"$pageSize": strconv.Itoa(pageSize),
+	})
 
 	// Handle error
 	if err != nil {
@@ -60,8 +85,16 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 	// Log latency
 	logger.Info().Msgf("Retrieved Todos in %s", latency(res))
 
+	if len(r.Todos) == 0 {
+		return &todoV1.GetTodosResponse{
+			Edges:      []*todoV1.TodoEdge{},
+			PageInfo:   emptyPageInfo(),
+			TotalCount: 0,
+		}, nil
+	}
+
 	var edges []*todoV1.TodoEdge
-	for _, todo := range r.Todo {
+	for _, todo := range r.Todos {
 		createdAt, err := ptypes.TimestampProto(todo.CreatedAt)
 		if err != nil {
 			return nil, err
@@ -74,15 +107,17 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 			Done:      todo.Done,
 			AuthorId:  todo.Creator.ID,
 		}
+
 		edges = append(edges, &todoV1.TodoEdge{
-			Cursor: todoPB.Id,
+			// TODO created_at may not always be the cursor field, don't hard-code
+			Cursor: newCursor(cursorField, todo.CreatedAt.Format(time.RFC3339)).encode(),
 			Node:   todoPB,
 		})
 	}
 
 	numEdges := len(edges)
 	var endCursor string
-	if numEdges > 0 {
+	if numEdges > 0 && edges != nil {
 		endCursor = edges[numEdges-1].Cursor
 	}
 
