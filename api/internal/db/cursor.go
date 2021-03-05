@@ -1,8 +1,10 @@
 package db
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
+	"github.com/MyOrg/go-dgraph-starter/internal/obs"
 	paginationV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
 	"strings"
 )
@@ -11,6 +13,12 @@ const (
 	MinPageSize     = 1
 	DefaultPageSize = 3
 	MaxPageSize     = 50
+
+	delimiter = ":::"
+)
+
+var (
+	errInvalidCursor = errors.New("invalid cursor")
 )
 
 type Cursor struct {
@@ -19,7 +27,7 @@ type Cursor struct {
 }
 
 func (c Cursor) encode() string {
-	return base64.StdEncoding.EncodeToString([]byte(c.field + ":" + c.value))
+	return base64.StdEncoding.EncodeToString([]byte(c.field + delimiter + c.value))
 }
 
 func newCursor(field, value string) Cursor {
@@ -29,7 +37,9 @@ func newCursor(field, value string) Cursor {
 	}
 }
 
-func parseCursor(in string) (Cursor, error) {
+func parseCursor(ctx context.Context, in string) (Cursor, error) {
+	logger := obs.ToLogger(ctx)
+
 	if in == "" {
 		return Cursor{
 			// if client doesn't specify a cursor, we'll default to using creation time
@@ -46,9 +56,10 @@ func parseCursor(in string) (Cursor, error) {
 		decoded = string(cursorBytes)
 	}
 
-	r := strings.Split(decoded, ":")
+	r := strings.Split(decoded, delimiter)
 	if len(r) != 2 {
-		return Cursor{}, errors.New("base64-decoded cursor should include 2 elements with a colon delimiter")
+		logger.Error().Msgf("Encoded: %s, Decoded: %s", in, decoded)
+		return Cursor{}, errInvalidCursor
 	}
 
 	return Cursor{

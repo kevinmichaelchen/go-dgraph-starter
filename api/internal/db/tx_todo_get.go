@@ -38,7 +38,7 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 	// TODO handle OrderBy
 
 	var cursorField, cursor string
-	if c, err := parseCursor(base64EncodedCursor); err != nil {
+	if c, err := parseCursor(ctx, base64EncodedCursor); err != nil {
 		return nil, err
 	} else {
 		cursorField = c.field
