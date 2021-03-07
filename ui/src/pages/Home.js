@@ -8,6 +8,7 @@ import {
   FormErrorMessage,
   FormHelperText,
 } from "@chakra-ui/react";
+import { Formik, Field, Form } from "formik";
 
 const CREATE_TODO_MUTATION = gql`
   mutation createTodo($title: String!) {
@@ -24,8 +25,6 @@ export default function Home(props) {
   const { formatMessage } = useIntl();
   const f = (id) => formatMessage({ id });
 
-  const [createTodo, { loading }] = useMutation(CREATE_TODO_MUTATION);
-
   const edges = props?.data?.todos?.edges ?? [];
 
   return (
@@ -38,18 +37,88 @@ export default function Home(props) {
     >
       <Heading>{f("hello")}</Heading>
 
-      <FormControl id="todo" isRequired onSubmit={() => console.log("submit")}>
-        <FormLabel>Todo</FormLabel>
-        <Input placeholder="What needs to be done?" />
-        <Button mt={4} colorScheme="teal" isLoading={loading} type="submit">
-          Submit
-        </Button>
-      </FormControl>
+      <CreateTodoForm />
 
       <TodoList edges={edges} />
     </Stack>
   );
 }
+
+const CreateTodoForm = () => {
+  const [createTodo, { loading }] = useMutation(CREATE_TODO_MUTATION);
+  const FormFields = {
+    title: "title",
+  };
+  function validateName(value) {
+    let error;
+    if (!value) {
+      error = "Value is required";
+    }
+    return error;
+  }
+  return (
+    <Formik
+      initialValues={{
+        [FormFields.title]: "",
+      }}
+      onSubmit={(values, actions) => {
+        console.log("values", values);
+
+        const title = values[FormFields.title];
+
+        createTodo({
+          variables: { title },
+          update: (cache, { data: { createTodo } }) => {
+            cache.modify({
+              fields: {
+                allTodos(existingTodos = []) {
+                  const newTodoRef = cache.writeFragment({
+                    data: createTodo,
+                    fragment: gql`
+                      fragment NewTodo on allTodos {
+                        id
+                        type
+                      }
+                    `,
+                  });
+                  return [newTodoRef, ...existingTodos];
+                },
+              },
+            });
+          },
+        });
+      }}
+    >
+      {(props) => (
+        <Form>
+          <Field name={FormFields.title} validate={validateName}>
+            {({ field, form }) => (
+              <FormControl
+                isInvalid={
+                  form.errors[FormFields.title] &&
+                  form.touched[FormFields.title]
+                }
+              >
+                <FormLabel htmlFor={FormFields.title}>Todo</FormLabel>
+                <Input
+                  {...field}
+                  id={FormFields.title}
+                  placeholder="What needs to be done?"
+                />
+                <FormErrorMessage>
+                  {form.errors[FormFields.title]}
+                </FormErrorMessage>
+              </FormControl>
+            )}
+          </Field>
+          <Button mt={4} colorScheme="teal" isLoading={loading} type="submit">
+            Submit
+          </Button>
+        </Form>
+      )}
+    </Formik>
+  );
+};
 
 const TodoList = ({ edges }) => {
   return (
