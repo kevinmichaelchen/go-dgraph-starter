@@ -12,7 +12,7 @@ export default function HomePage({ ...props }) {
   );
 }
 
-const getTodosQuery = gql`
+const GET_TODOS_QUERY = gql`
   query GetTodos {
     todos {
       totalCount
@@ -37,7 +37,7 @@ export async function getServerSideProps({ req }) {
   const apolloClient = initializeApollo();
 
   const res = await apolloClient.query({
-    query: getTodosQuery,
+    query: GET_TODOS_QUERY,
   });
 
   console.log(JSON.stringify(res, null, 2));
