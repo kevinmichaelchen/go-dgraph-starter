@@ -15,7 +15,7 @@ function createApolloClient() {
     ssrMode: typeof window === "undefined",
     link: new HttpLink({
       uri, // Server URL (must be absolute)
-      credentials: "same-origin", // Additional fetch() options like `credentials` or `headers`
+      credentials: "include",
     }),
     cache: new InMemoryCache({
       typePolicies: {
