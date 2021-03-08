@@ -1,6 +1,7 @@
 import { Heading, Stack, Box } from "@chakra-ui/react";
 import { useIntl } from "react-intl";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery, NetworkStatus } from "@apollo/client";
+import { GET_TODOS_QUERY } from "../../src/graphql/gql";
 import { Input, Button } from "@chakra-ui/react";
 import {
   FormControl,
@@ -21,11 +22,55 @@ const CREATE_TODO_MUTATION = gql`
   }
 `;
 
+const pageSize = 10;
+
 export default function Home(props) {
   const { formatMessage } = useIntl();
   const f = (id) => formatMessage({ id });
 
-  const edges = props?.data?.todos?.edges ?? [];
+  const { loading, error, data, fetchMore, networkStatus } = useQuery(
+    GET_TODOS_QUERY,
+    {
+      variables: {
+        first: pageSize,
+        after: "",
+      },
+      // Setting this value to true will make the component rerender when
+      // the "networkStatus" changes, so we are able to know if it is fetching
+      // more data
+      notifyOnNetworkStatusChange: true,
+    }
+  );
+
+  const loadingMoreTodos = networkStatus === NetworkStatus.fetchMore;
+
+  const endCursor = data?.todos?.pageInfo?.endCursor ?? "";
+
+  const loadMoreTodosFactory = (endCursor) => () => {
+    console.log(`Fetching more Todos after cursor ${endCursor}`);
+    fetchMore({
+      variables: {
+        first: pageSize,
+        after: endCursor,
+      },
+    });
+  };
+  const loadMoreTodos = loadMoreTodosFactory(endCursor);
+
+  if (error) {
+    return <Box>Failed to load posts: {JSON.stringify(error)}</Box>;
+  }
+
+  if (loading && !loadingMoreTodos) {
+    return <Box>Loading...</Box>;
+  }
+
+  const dataEdges = data?.todos?.edges ?? [];
+  const propEdges = props?.data?.todos?.edges ?? [];
+  console.log("dataEdges", dataEdges);
+  console.log("propEdges", propEdges);
+
+  const edges = dataEdges || propEdges;
 
   return (
     <Stack
@@ -37,14 +82,14 @@ export default function Home(props) {
     >
       <Heading>{f("hello")}</Heading>
 
-      <CreateTodoForm />
+      <CreateTodoForm loadMoreTodos={loadMoreTodos} />
 
       <TodoList edges={edges} />
     </Stack>
   );
 }
 
-const CreateTodoForm = () => {
+const CreateTodoForm = ({ loadMoreTodos }) => {
   const [createTodo, { loading }] = useMutation(CREATE_TODO_MUTATION);
   const FormFields = {
     title: "title",
@@ -62,12 +107,15 @@ const CreateTodoForm = () => {
         [FormFields.title]: "",
       }}
       onSubmit={(values, actions) => {
-        console.log("values", values);
+        const { setSubmitting } = actions;
+        setSubmitting(false);
 
         const title = values[FormFields.title];
 
+        // Issue the GraphQL mutation that creates a new Todo
         createTodo({
           variables: { title },
+          // TODO this "update cache" function isn't working properly since newly created todo is not being rendered
           update: (cache, { data: { createTodo } }) => {
             cache.modify({
               fields: {
@@ -87,6 +135,9 @@ const CreateTodoForm = () => {
             });
           },
         });
+
+        // Render the Todo we just created
+        loadMoreTodos();
       }}
     >
       {(props) => (

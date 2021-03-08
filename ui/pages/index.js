@@ -2,7 +2,7 @@ import Layout from "../src/components/Layout";
 import Home from "../src/pages/Home";
 
 import { initializeApollo, addApolloState } from "../src/graphql";
-import { gql } from "@apollo/client";
+import { GET_TODOS_QUERY } from "../src/graphql/gql";
 
 export default function HomePage({ ...props }) {
   return (
@@ -12,32 +12,15 @@ export default function HomePage({ ...props }) {
   );
 }
 
-const GET_TODOS_QUERY = gql`
-  query GetTodos {
-    todos {
-      totalCount
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        cursor
-        node {
-          id
-          createdAt
-          title
-          done
-        }
-      }
-    }
-  }
-`;
-
 export async function getServerSideProps({ req }) {
   const apolloClient = initializeApollo();
 
   const res = await apolloClient.query({
     query: GET_TODOS_QUERY,
+    variables: {
+      first: 10,
+      after: "",
+    },
   });
 
   console.log(JSON.stringify(res, null, 2));
@@ -50,7 +33,6 @@ export async function getServerSideProps({ req }) {
       // and returning undefined would be invalid.
       cookies: req.headers.cookie ?? "",
       data: res.data,
-      revalidate: 1,
     },
   });
 }
