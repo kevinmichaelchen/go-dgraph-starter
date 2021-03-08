@@ -1,14 +1,22 @@
-import { Heading, Stack, Box } from "@chakra-ui/react";
+import {
+  Heading,
+  Stack,
+  Box,
+  Flex,
+  VStack,
+  StackDivider,
+} from "@chakra-ui/react";
 import { useIntl } from "react-intl";
 import { gql, useMutation, useQuery, NetworkStatus } from "@apollo/client";
 import { GET_TODOS_QUERY } from "../../src/graphql/gql";
-import { Input, Button } from "@chakra-ui/react";
+import { Input, Button, IconButton } from "@chakra-ui/react";
 import {
   FormControl,
   FormLabel,
   FormErrorMessage,
   FormHelperText,
 } from "@chakra-ui/react";
+import { DeleteIcon } from "@chakra-ui/icons";
 import { Formik, Field, Form } from "formik";
 
 const CREATE_TODO_MUTATION = gql`
@@ -25,9 +33,11 @@ const CREATE_TODO_MUTATION = gql`
 const pageSize = 10;
 
 export default function Home(props) {
+  // Hooks for i18n
   const { formatMessage } = useIntl();
   const f = (id) => formatMessage({ id });
 
+  // Hooks to query a page of Todos
   const { loading, error, data, fetchMore, networkStatus } = useQuery(
     GET_TODOS_QUERY,
     {
@@ -42,8 +52,10 @@ export default function Home(props) {
     }
   );
 
+  // Whether we're "fetching more" Todos (beyond the initial page)
   const loadingMoreTodos = networkStatus === NetworkStatus.fetchMore;
 
+  // The end cursor, so we can continue to paginate when we successfully create a Todo
   const endCursor = data?.todos?.pageInfo?.endCursor ?? "";
 
   const loadMoreTodosFactory = (endCursor) => () => {
@@ -173,14 +185,25 @@ const CreateTodoForm = ({ loadMoreTodos }) => {
 
 const TodoList = ({ edges }) => {
   return (
-    <Box>
+    <VStack spacing={4} divider={<StackDivider borderColor="gray.200" />}>
       {edges.map((e, i) => (
         <TodoRow key={i} {...e} />
       ))}
-    </Box>
+    </VStack>
   );
 };
 
 const TodoRow = ({ cursor, node: { id, createdAt, title, done } }) => {
-  return <Box>{title}</Box>;
+  return (
+    <Stack isInline justify="space-between" align="center" spacing={5}>
+      <Box>{title}</Box>
+
+      <IconButton
+        colorScheme="red"
+        size="sm"
+        aria-label="Delete"
+        icon={<DeleteIcon />}
+      />
+    </Stack>
+  );
 };
