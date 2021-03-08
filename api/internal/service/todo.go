@@ -66,8 +66,8 @@ func (s Service) GetTodo(ctx context.Context, request *todoV1.GetTodoRequest) (*
 func (s Service) GetTodos(ctx context.Context, request *todoV1.GetTodosRequest) (*todoV1.GetTodosResponse, error) {
 	// Validate inputs
 	if request.OrderBy == todoV1.OrderTodosBy_ORDER_TODOS_BY_UNSPECIFIED {
-		// New to old
-		request.OrderBy = todoV1.OrderTodosBy_ORDER_TODOS_BY_CREATED_AT_DESC
+		// Old to new
+		request.OrderBy = todoV1.OrderTodosBy_ORDER_TODOS_BY_CREATED_AT_ASC
 	}
 	if f := request.PaginationRequest.GetForwardPaginationInfo(); f != nil {
 		if f.First < db.MinPageSize || f.First > db.MaxPageSize {
