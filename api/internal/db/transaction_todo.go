@@ -15,6 +15,7 @@ type TodoTransaction interface {
 	GetTodoByID(ctx context.Context, id string) (*todoV1.Todo, error)
 	GetTodos(ctx context.Context, in *todoV1.GetTodosRequest) (*todoV1.GetTodosResponse, error)
 	CreateTodo(ctx context.Context, item *todoV1.Todo) error
+	UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoRequest) (*todoV1.UpdateTodoResponse, error)
 	DeleteTodo(ctx context.Context, id string) (*todoV1.DeleteTodoResponse, error)
 }
 

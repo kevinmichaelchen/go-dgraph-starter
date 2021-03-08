@@ -3,9 +3,6 @@ package service
 import (
 	"context"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/MyOrg/go-dgraph-starter/internal/db"
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
 	"github.com/golang/protobuf/ptypes"
@@ -36,6 +33,23 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 	return &todoV1.CreateTodoResponse{
 		Todo: todo,
 	}, nil
+}
+
+func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoRequest) (*todoV1.UpdateTodoResponse, error) {
+	var response *todoV1.UpdateTodoResponse
+
+	if err := s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
+		if res, err := tx.UpdateTodo(ctx, request); err != nil {
+			return err
+		} else {
+			response = res
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }
 
 func (s Service) GetTodo(ctx context.Context, request *todoV1.GetTodoRequest) (*todoV1.GetTodoResponse, error) {
@@ -100,10 +114,6 @@ func (s Service) GetTodos(ctx context.Context, request *todoV1.GetTodosRequest) 
 		return nil, err
 	}
 	return response, nil
-}
-
-func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoRequest) (*todoV1.UpdateTodoResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "Unimplemented")
 }
 
 func (s Service) DeleteTodo(ctx context.Context, request *todoV1.DeleteTodoRequest) (*todoV1.DeleteTodoResponse, error) {

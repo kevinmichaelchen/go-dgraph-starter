@@ -46,25 +46,40 @@ func TestCrud(t *testing.T) {
 			So(res, ShouldNotBeNil)
 			So(res.Todo, ShouldNotBeNil)
 			So(res.Todo.Id, ShouldEqual, id)
+			So(res.Todo.CreatedAt, ShouldNotBeNil)
 			So(res.Todo.Title, ShouldEqual, "Todo 1")
 			So(res.Todo.Done, ShouldBeFalse)
 
-			Convey("DELETE", func() {
-				res, err := svc.DeleteTodo(ctx, &todoV1.DeleteTodoRequest{
-					Id: id,
+			Convey("UPDATE", func() {
+				res, err := svc.UpdateTodo(ctx, &todoV1.UpdateTodoRequest{
+					Id:    id,
+					Title: "New Title",
 				})
 				So(err, ShouldBeNil)
 				So(res, ShouldNotBeNil)
+				So(res.Todo, ShouldNotBeNil)
+				So(res.Todo.Id, ShouldEqual, id)
+				So(res.Todo.CreatedAt, ShouldNotBeNil)
+				So(res.Todo.Title, ShouldEqual, "New Title")
+				So(res.Todo.Done, ShouldBeFalse)
 
-				Convey("GET", func() {
-					res, err := svc.GetTodo(ctx, &todoV1.GetTodoRequest{
+				Convey("DELETE", func() {
+					res, err := svc.DeleteTodo(ctx, &todoV1.DeleteTodoRequest{
 						Id: id,
 					})
-					So(res, ShouldBeNil)
-					So(err, ShouldNotBeNil)
-					So(errors.Is(err, db.ErrNotFound), ShouldBeTrue)
-				})
+					So(err, ShouldBeNil)
+					So(res, ShouldNotBeNil)
 
+					Convey("GET", func() {
+						res, err := svc.GetTodo(ctx, &todoV1.GetTodoRequest{
+							Id: id,
+						})
+						So(res, ShouldBeNil)
+						So(err, ShouldNotBeNil)
+						So(errors.Is(err, db.ErrNotFound), ShouldBeTrue)
+					})
+
+				})
 			})
 		})
 
