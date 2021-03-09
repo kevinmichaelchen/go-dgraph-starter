@@ -54,7 +54,7 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 				id
 				created_at
 				title
-				done
+				is_done
 				creator {
 					id
 					name
@@ -104,7 +104,7 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 			CreatedAt: createdAt,
 			Title:     todo.Title,
 			Done:      todo.Done,
-			AuthorId:  todo.Creator.ID,
+			CreatorId: todo.Creator.ID,
 		}
 
 		edges = append(edges, &todoV1.TodoEdge{

@@ -10,15 +10,6 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-const (
-	argWhere   = "where"
-	argOrderBy = "orderBy"
-	argFirst   = "first"
-	argAfter   = "after"
-	argLast    = "last"
-	argBefore  = "before"
-)
-
 type TodosEdge struct {
 	Cursor string `json:"cursor"`
 	Node   Todo   `json:"node"`

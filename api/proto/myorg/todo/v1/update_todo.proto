@@ -11,11 +11,14 @@ option objc_class_prefix = "MTX";
 option php_namespace = "MyOrg\\Todo\\V1";
 
 import "myorg/todo/v1/todo.proto";
+import "google/protobuf/field_mask.proto";
 
 message UpdateTodoRequest {
     string id = 1;
-    string title = 2;
-    bool done = 3;
+    google.protobuf.FieldMask field_mask = 2;
+    string title = 3;
+    bool done = 4;
+
 }
 
 message UpdateTodoResponse {

@@ -6,6 +6,7 @@ import (
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
 	"github.com/graphql-go/graphql"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 func (s Server) buildFieldForUpdateTodo(todoType *graphql.Object) *graphql.Field {
@@ -51,11 +52,24 @@ func (s Server) buildFieldForUpdateTodo(todoType *graphql.Object) *graphql.Field
 }
 
 func buildUpdateTodoRequestFromArgs(args map[string]interface{}) (*todoV1.UpdateTodoRequest, error) {
+	var paths []string
 	request := &todoV1.UpdateTodoRequest{}
+
+	if value, ok := args[argID]; ok {
+		// TODO do we need these type assertions or does the graphql library take care of that for us?
+		if val, ok := value.(string); ok {
+			request.Id = val
+		} else {
+			return nil, fmt.Errorf("'%s' not a string", argID)
+		}
+	} else {
+		return nil, fmt.Errorf("must specify '%s'", argID)
+	}
 
 	if value, ok := args[argTitle]; ok {
 		if val, ok := value.(string); ok {
 			request.Title = val
+			paths = append(paths, argTitle)
 		} else {
 			return nil, fmt.Errorf("'%s' not a string", argTitle)
 		}
@@ -64,13 +78,18 @@ func buildUpdateTodoRequestFromArgs(args map[string]interface{}) (*todoV1.Update
 	}
 
 	if value, ok := args[argDone]; ok {
-		if val, ok := value.(string); ok {
-			request.Title = val
+		if val, ok := value.(bool); ok {
+			request.Done = val
+			paths = append(paths, argDone)
 		} else {
 			return nil, fmt.Errorf("'%s' not a string", argDone)
 		}
 	} else {
 		return nil, fmt.Errorf("must specify '%s'", argDone)
+	}
+
+	request.FieldMask = &fieldmaskpb.FieldMask{
+		Paths: paths,
 	}
 
 	return request, nil

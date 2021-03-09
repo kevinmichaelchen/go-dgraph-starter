@@ -8,11 +8,6 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-const (
-	argTitle = "title"
-	argDone  = "done"
-)
-
 func (s Server) buildFieldForCreateTodo(todoType *graphql.Object) *graphql.Field {
 	return &graphql.Field{
 		Type:        todoType,

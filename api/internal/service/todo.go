@@ -20,7 +20,7 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 		CreatedAt: ptypes.TimestampNow(),
 		Title:     request.Title,
 		Done:      false,
-		AuthorId:  requesterID,
+		CreatorId: requesterID,
 	}
 	err = s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
 		return tx.CreateTodo(ctx, todo)

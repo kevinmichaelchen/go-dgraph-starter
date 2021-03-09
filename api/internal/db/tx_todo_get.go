@@ -28,7 +28,7 @@ func (tx *todoTransactionImpl) GetTodoByID(ctx context.Context, id string) (*tod
 				id
 				created_at
 				title
-				done
+				is_done
 				creator {
 					id
 					name
@@ -73,6 +73,6 @@ func (tx *todoTransactionImpl) GetTodoByID(ctx context.Context, id string) (*tod
 		CreatedAt: createdAt,
 		Title:     todo.Title,
 		Done:      todo.Done,
-		AuthorId:  todo.Creator.ID,
+		CreatorId: todo.Creator.ID,
 	}, nil
 }

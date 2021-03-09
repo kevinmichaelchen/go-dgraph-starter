@@ -42,7 +42,7 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 		}
 	`
 
-	if res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{"$creatorID": item.AuthorId}); err != nil {
+	if res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{"$creatorID": item.CreatorId}); err != nil {
 		return err
 	} else {
 		var c Creator
@@ -55,7 +55,7 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 			if res, err := tx.tx.Mutate(ctx, &api.Mutation{
 				Set: []*api.NQuad{
 					nquadStr("_:newUser", "dgraph.type", "User"),
-					nquadStr("_:newUser", "id", item.AuthorId),
+					nquadStr("_:newUser", "id", item.CreatorId),
 					nquadStr("_:newUser", "name", "Alice"),
 					nquadStr("_:newUser", "created_at", nowStr),
 				},

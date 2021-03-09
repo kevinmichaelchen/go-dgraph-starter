@@ -17,5 +17,5 @@ message Todo {
     google.protobuf.Timestamp created_at = 2;
     string title = 3;
     bool done = 4;
-    string author_id = 5;
+    string creator_id = 5;
 }
