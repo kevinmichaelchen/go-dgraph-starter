@@ -9,6 +9,7 @@ import (
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
 	"github.com/rs/zerolog/log"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 func TestCrud(t *testing.T) {
@@ -52,7 +53,10 @@ func TestCrud(t *testing.T) {
 
 			Convey("UPDATE", func() {
 				res, err := svc.UpdateTodo(ctx, &todoV1.UpdateTodoRequest{
-					Id:    id,
+					Id: id,
+					FieldMask: &fieldmaskpb.FieldMask{
+						Paths: []string{"title"},
+					},
 					Title: "New Title",
 				})
 				So(err, ShouldBeNil)
