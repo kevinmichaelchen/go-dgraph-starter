@@ -97,6 +97,7 @@ func getPaginationInfo(in *paginationV1.PaginationRequest) (string, int, bool) {
 
 func emptyPageInfo() *paginationV1.PageInfo {
 	return &paginationV1.PageInfo{
+		StartCursor: "",
 		EndCursor:   "",
 		HasNextPage: false,
 	}

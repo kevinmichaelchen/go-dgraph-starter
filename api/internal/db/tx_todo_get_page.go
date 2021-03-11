@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -19,9 +20,13 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 
 	logger := obs.ToLogger(ctx)
 
-	// A struct for unmarshalling JSON responses into
+	// Struct for unmarshalling JSON responses into
+	type countContainer struct {
+		Count int `json:"count"`
+	}
 	type response struct {
-		Todos []models.Todo `json:"todos"`
+		Todos      []models.Todo    `json:"todos"`
+		TotalCount []countContainer `json:"totalCount"`
 	}
 
 	// The requested page-size
@@ -61,6 +66,9 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 					created_at
 				}
 			}
+			totalCount(func: eq(dgraph.type, "Todo")) {
+				count(uid)
+			}
 		}
 	`, orderKey, cursorDirection, cursorField)
 
@@ -81,17 +89,26 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 		return nil, err
 	}
 
+	var totalCount int
+	if len(r.TotalCount) == 0 {
+		return nil, errors.New("empty count array; could not get total count")
+	} else {
+		totalCount = r.TotalCount[0].Count
+	}
+
 	// Log latency
 	logger.Info().Msgf("Retrieved Todos in %s", latency(res))
 
+	// Check for an empty response
 	if len(r.Todos) == 0 {
 		return &todoV1.GetTodosResponse{
 			Edges:      []*todoV1.TodoEdge{},
 			PageInfo:   emptyPageInfo(),
-			TotalCount: 0,
+			TotalCount: int32(totalCount),
 		}, nil
 	}
 
+	// We're conforming to the Relay "Cursor Connections Specification", so we use "edges" and "nodes".
 	var edges []*todoV1.TodoEdge
 	for _, todo := range r.Todos {
 		createdAt, err := ptypes.TimestampProto(todo.CreatedAt)
@@ -115,17 +132,20 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 	}
 
 	numEdges := len(edges)
-	var endCursor string
+	var startCursor, endCursor string
 	if numEdges > 0 && edges != nil {
+		startCursor = edges[0].Cursor
 		endCursor = edges[numEdges-1].Cursor
 	}
 
 	return &todoV1.GetTodosResponse{
 		Edges: edges,
 		PageInfo: &todoV1.PageInfo{
+			StartCursor: startCursor,
 			EndCursor:   endCursor,
+			// TODO this isn't correct. the requested page size can be N and the page size can also be N.
 			HasNextPage: numEdges < pageSize,
 		},
-		TotalCount: int32(numEdges),
+		TotalCount: int32(totalCount),
 	}, nil
 }
