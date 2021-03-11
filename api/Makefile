@@ -15,7 +15,7 @@ GOPRIVATE := github.com/kevinmichaelchen
 all:
 	docker-compose up -d
 	echo Sleeping for a bit
-	sleep 3
+	sleep 7
 	env \
 	  GO111MODULE=${GO111MODULE} \
 	  go run main.go
