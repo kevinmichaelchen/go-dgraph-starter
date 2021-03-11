@@ -59,7 +59,6 @@ const CreateTodoForm = ({ loadMoreTodos }) => {
         // Issue the GraphQL mutation that creates a new Todo
         createTodo({
           variables: { title },
-          // TODO this "update cache" function isn't working properly since newly created todo is not being rendered
           update: (cache, { data: { createTodo } }) => {
             cache.modify({
               fields: {
@@ -79,6 +78,9 @@ const CreateTodoForm = ({ loadMoreTodos }) => {
                 },
               },
             });
+
+            // TODO new Todo is not getting rendered. we may need to use refetchQueries option here:
+            // https://www.apollographql.com/docs/react/data/mutations/#usemutation-api
           },
         });
 

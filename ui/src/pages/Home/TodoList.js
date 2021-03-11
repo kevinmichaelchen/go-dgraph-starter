@@ -47,6 +47,24 @@ const TodoRow = ({ cursor, node: { id, createdAt, title, done } }) => {
     });
   }
 
+  // https://stackoverflow.com/questions/63192774/apollo-client-delete-item-from-cache
+  const handleDeleteClick = () => {
+    deleteTodo({
+      variables: { id },
+      update(cache) {
+        cache.modify({
+          fields: {
+            allTodos(existingTodos, { readField }) {
+              return existingTodos.filter(
+                (todo) => id !== readField("id", todo)
+              );
+            },
+          },
+        });
+      },
+    });
+  };
+
   return (
     <Stack isInline justify="space-between" align="center" spacing={5}>
       <Box>{title}</Box>
@@ -56,6 +74,7 @@ const TodoRow = ({ cursor, node: { id, createdAt, title, done } }) => {
         size="sm"
         aria-label="Delete"
         icon={<DeleteIcon />}
+        onClick={handleDeleteClick}
       />
     </Stack>
   );
