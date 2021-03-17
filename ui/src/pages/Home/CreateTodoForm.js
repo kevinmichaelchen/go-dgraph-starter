@@ -2,14 +2,13 @@ import { gql, useMutation } from "@apollo/client";
 import { Input, Button, useToast, Spinner } from "@chakra-ui/react";
 import { FormControl, FormLabel, FormErrorMessage } from "@chakra-ui/react";
 import { Formik, Field, Form } from "formik";
+import { Fragments } from "../../graphql/gql";
 
 const CREATE_TODO_MUTATION = gql`
+  ${Fragments.TodoFragment}
   mutation createTodo($title: String!) {
     createTodo(title: $title) {
-      id
-      title
-      createdAt
-      done
+      ...TodoFields
     }
   }
 `;
@@ -59,29 +58,20 @@ const CreateTodoForm = ({ loadMoreTodos }) => {
         // Issue the GraphQL mutation that creates a new Todo
         createTodo({
           variables: { title },
-          update: (cache, { data: { createTodo } }) => {
-            cache.modify({
-              fields: {
-                allTodos(existingTodos = []) {
-                  const newTodoRef = cache.writeFragment({
-                    data: createTodo,
-                    fragment: gql`
-                      fragment NewTodo on allTodos {
-                        id
-                        title
-                        createdAt
-                        done
-                      }
-                    `,
-                  });
-                  return [newTodoRef, ...existingTodos];
-                },
-              },
-            });
-
-            // TODO new Todo is not getting rendered. we may need to use refetchQueries option here:
-            // https://www.apollographql.com/docs/react/data/mutations/#usemutation-api
-          },
+          // TODO can we do an optimistic update?
+          // update: (cache, { data: { createTodo } }) => {
+          //   cache.modify({
+          //     fields: {
+          //       allTodos(existingTodos = {}) {
+          //         const newTodoRef = cache.writeFragment({
+          //           data: createTodo,
+          //           fragment: Fragments.TodoFragment,
+          //         });
+          //         return [newTodoRef, ...existingTodos];
+          //       },
+          //     },
+          //   });
+          // },
         });
 
         // Render the Todo we just created
