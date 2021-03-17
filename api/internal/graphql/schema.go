@@ -23,6 +23,7 @@ func (s Server) buildSchema() *graphql.Schema {
 		"createTodo": s.buildFieldForCreateTodo(todoType),
 		"updateTodo": s.buildFieldForUpdateTodo(todoType),
 		"deleteTodo": s.buildFieldForDeleteTodo(todoType),
+		"nuke":       s.buildFieldForNuke(),
 	}
 
 	mutationType := graphql.NewObject(graphql.ObjectConfig{

@@ -15,6 +15,9 @@ type Client interface {
 	Ping(ctx context.Context) error
 	RunInTransaction(ctx context.Context, fn TransactionFunc) error
 	RunInReadOnlyTransaction(ctx context.Context, fn TransactionFunc) error
+
+	// Leaky abstraction
+	GetClient() *dgo.Dgraph
 }
 
 type clientImpl struct {
@@ -29,6 +32,10 @@ func NewClient(db *dgo.Dgraph, redisClient RedisClient, config configuration.Con
 		config:      config,
 		redisClient: redisClient,
 	}
+}
+
+func (c *clientImpl) GetClient() *dgo.Dgraph {
+	return c.db
 }
 
 func (c *clientImpl) Ping(ctx context.Context) error {
