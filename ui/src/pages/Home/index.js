@@ -55,8 +55,6 @@ export default function Home(props) {
 
   const dataEdges = data?.todos?.edges ?? [];
   const propEdges = props?.data?.todos?.edges ?? [];
-  console.log("dataEdges", dataEdges);
-  console.log("propEdges", propEdges);
 
   const edges = dataEdges || propEdges;
 

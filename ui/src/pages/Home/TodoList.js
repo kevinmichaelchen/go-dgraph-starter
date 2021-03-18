@@ -54,7 +54,11 @@ const TodoRow = ({ cursor, node: { id, createdAt, title, done } }) => {
       update(cache) {
         cache.modify({
           fields: {
-            allTodos(existingTodos, { readField }) {
+            allTodos(existingTodos, { readField, isReference }) {
+              console.log(
+                "Handling Delete Click. existingTodos: ",
+                existingTodos
+              );
               return existingTodos.filter(
                 (todo) => id !== readField("id", todo)
               );
