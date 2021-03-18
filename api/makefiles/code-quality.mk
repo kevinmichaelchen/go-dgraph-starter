@@ -24,23 +24,23 @@ vet:
 imports:
 	@echo "${GREEN}✓ Cleaning up imports${NC}\n"
 	@echo "${BLUE}✓ This may take a few seconds...${NC}\n"
-	docker run --volume "$(shell pwd):/data" cytopia/goimports -w .
+	docker run --rm --volume "$(shell pwd):/data" cytopia/goimports -w .
 
 .PHONY: importsv
 importsv:
 	@echo "${GREEN}✓ Cleaning up imports${NC}\n"
 	@echo "${BLUE}✓ This may take a few seconds...${NC}\n"
-	docker run --volume "$(shell pwd):/data" cytopia/goimports -v -w .
+	docker run --rm --volume "$(shell pwd):/data" cytopia/goimports -v -w .
 
 .PHONY: fmt
 fmt:
 	@echo "${GREEN}✓ Formatting code${NC}\n"
-	docker run --volume "$(shell pwd):/data" cytopia/gofmt -s -w .
+	docker run --rm --volume "$(shell pwd):/data" cytopia/gofmt -s -w .
 
 .PHONY: lint
 lint:
 	@echo "${GREEN}✓ Checking code style${NC}\n"
-	docker run --volume "$(shell pwd):/data" cytopia/golint ./...
+	docker run --rm --volume "$(shell pwd):/data" cytopia/golint ./...
 
 .PHONY: hadolint
 hadolint:

@@ -4,9 +4,14 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"fmt"
+	"strings"
+	"time"
+
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
 	paginationV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
-	"strings"
+	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	"github.com/golang/protobuf/ptypes"
 )
 
 const (
@@ -30,11 +35,18 @@ func (c Cursor) encode() string {
 	return base64.StdEncoding.EncodeToString([]byte(c.field + delimiter + c.value))
 }
 
-func newCursor(field, value string) Cursor {
+func newCursor(field string, todoPB *todoV1.Todo) (Cursor, error) {
+	// TODO created_at may not always be the cursor field, don't hard-code
+	createdAt, err := ptypes.Timestamp(todoPB.CreatedAt)
+	if err != nil {
+		return Cursor{}, fmt.Errorf("failed to convert Timestamp to Time during cursor creation: %w", err)
+	}
+
+	cursorValue := createdAt.Format(time.RFC3339)
 	return Cursor{
 		field: field,
-		value: value,
-	}
+		value: cursorValue,
+	}, nil
 }
 
 func parseCursor(ctx context.Context, in string) (Cursor, error) {
@@ -97,6 +109,7 @@ func getPaginationInfo(in *paginationV1.PaginationRequest) (string, int, bool) {
 
 func emptyPageInfo() *paginationV1.PageInfo {
 	return &paginationV1.PageInfo{
+		StartCursor: "",
 		EndCursor:   "",
 		HasNextPage: false,
 	}

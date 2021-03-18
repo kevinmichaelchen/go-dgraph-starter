@@ -92,8 +92,9 @@ func buildResponseForGetTodos(in *todoV1.GetTodosResponse) (TodosPage, error) {
 		TotalCount: int(in.TotalCount),
 		Edges:      edges,
 		PageInfo: PageInfo{
-			HasNextPage: in.PageInfo.HasNextPage,
+			StartCursor: in.PageInfo.StartCursor,
 			EndCursor:   in.PageInfo.EndCursor,
+			HasNextPage: in.PageInfo.HasNextPage,
 		},
 	}, nil
 }

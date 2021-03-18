@@ -1,9 +1,10 @@
 import { Heading, Stack, Box } from "@chakra-ui/react";
 import { useIntl } from "react-intl";
 import { useQuery, NetworkStatus } from "@apollo/client";
-import { GET_TODOS_QUERY } from "../../graphql/gql";
+import { Queries } from "../../graphql";
 import CreateTodoForm from "./CreateTodoForm";
 import TodoList from "./TodoList";
+import { Nuke } from "./Nuke";
 
 const pageSize = 10;
 
@@ -14,7 +15,7 @@ export default function Home(props) {
 
   // Hooks to query a page of Todos
   const { loading, error, data, fetchMore, networkStatus } = useQuery(
-    GET_TODOS_QUERY,
+    Queries.GET_TODOS_QUERY,
     {
       variables: {
         first: pageSize,
@@ -54,8 +55,6 @@ export default function Home(props) {
 
   const dataEdges = data?.todos?.edges ?? [];
   const propEdges = props?.data?.todos?.edges ?? [];
-  console.log("dataEdges", dataEdges);
-  console.log("propEdges", propEdges);
 
   const edges = dataEdges || propEdges;
 
@@ -67,6 +66,7 @@ export default function Home(props) {
       shouldWrapChildren
       maxW={800}
     >
+      <Nuke />
       <Heading>{f("hello")}</Heading>
 
       <CreateTodoForm loadMoreTodos={loadMoreTodos} />

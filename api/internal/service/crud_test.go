@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/db"
@@ -11,6 +12,47 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
+
+func TestPagination(t *testing.T) {
+	Convey("CREATE", t, func(c C) {
+
+		ctx := context.TODO()
+
+		Reset(func() {
+			// Drop all data and schema
+			log.Info().Msg("Dropping all Dgraph data...")
+			if err := db.NukeData(context.Background(), dgraphClient); err != nil {
+				log.Fatal().Err(err).Msg("failed to nuke data")
+			}
+		})
+
+		for i := 1; i <= 10; i++ {
+			res, err := svc.CreateTodo(ctx, &todoV1.CreateTodoRequest{
+				Title: fmt.Sprintf("Todo %d", i),
+			})
+			So(err, ShouldBeNil)
+			So(res, ShouldNotBeNil)
+		}
+
+		Convey("GET PAGE", func() {
+			res, err := svc.GetTodos(ctx, &todoV1.GetTodosRequest{
+				PaginationRequest: &todoV1.PaginationRequest{
+					Request: &todoV1.PaginationRequest_ForwardPaginationInfo{
+						ForwardPaginationInfo: &todoV1.ForwardPaginationRequest{
+							First: 10,
+							After: "",
+						},
+					},
+				},
+			})
+			So(err, ShouldBeNil)
+			So(res, ShouldNotBeNil)
+			So(res.PageInfo, ShouldNotBeNil)
+			So(res.PageInfo.HasNextPage, ShouldBeFalse)
+		})
+
+	})
+}
 
 func TestCrud(t *testing.T) {
 	Convey("CREATE", t, func(c C) {

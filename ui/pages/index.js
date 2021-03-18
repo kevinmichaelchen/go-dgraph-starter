@@ -2,7 +2,7 @@ import Layout from "../src/components/Layout";
 import Home from "../src/pages/Home";
 
 import { initializeApollo, addApolloState } from "../src/graphql";
-import { GET_TODOS_QUERY } from "../src/graphql/gql";
+import { Queries } from "../src/graphql/gql";
 
 export default function HomePage({ ...props }) {
   return (
@@ -16,14 +16,12 @@ export async function getServerSideProps({ req }) {
   const apolloClient = initializeApollo();
 
   const res = await apolloClient.query({
-    query: GET_TODOS_QUERY,
+    query: Queries.GET_TODOS_QUERY,
     variables: {
       first: 10,
       after: "",
     },
   });
-
-  console.log(JSON.stringify(res, null, 2));
 
   return addApolloState(apolloClient, {
     // will be passed to the page component as props

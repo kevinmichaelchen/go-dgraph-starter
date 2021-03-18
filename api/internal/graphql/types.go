@@ -53,6 +53,7 @@ func buildTypeForTodo() *graphql.Object {
 }
 
 type PageInfo struct {
+	StartCursor string `json:"startCursor"`
 	EndCursor   string `json:"endCursor"`
 	HasNextPage bool   `json:"hasNextPage"`
 }
@@ -61,6 +62,10 @@ func buildTypePageInfo() *graphql.Object {
 	return graphql.NewObject(graphql.ObjectConfig{
 		Name: "TodosPageInfo",
 		Fields: graphql.Fields{
+			"startCursor": &graphql.Field{
+				Type:        graphql.String,
+				Description: "The first cursor in the page",
+			},
 			"endCursor": &graphql.Field{
 				Type:        graphql.String,
 				Description: "The last cursor in the page",
