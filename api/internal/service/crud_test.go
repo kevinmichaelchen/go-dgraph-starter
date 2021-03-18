@@ -47,6 +47,8 @@ func TestPagination(t *testing.T) {
 			})
 			So(err, ShouldBeNil)
 			So(res, ShouldNotBeNil)
+			So(res.PageInfo, ShouldNotBeNil)
+			So(res.PageInfo.HasNextPage, ShouldBeFalse)
 		})
 
 	})

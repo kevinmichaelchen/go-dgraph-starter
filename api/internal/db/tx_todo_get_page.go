@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/models"
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
@@ -70,7 +69,14 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 				count(uid)
 			}
 		}
-	`, orderKey, cursorDirection, cursorField)
+	`,
+		// e.g., "orderasc"
+		orderKey,
+		// e.g., "gt"
+		cursorDirection,
+		// e.g., "created_at"
+		cursorField,
+	)
 
 	// Run query
 	res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{
@@ -124,13 +130,18 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 			CreatorId: todo.Creator.ID,
 		}
 
+		cursor, err := newCursor(cursorField, todoPB)
+		if err != nil {
+			return nil, err
+		}
+
 		edges = append(edges, &todoV1.TodoEdge{
-			// TODO created_at may not always be the cursor field, don't hard-code
-			Cursor: newCursor(cursorField, todo.CreatedAt.Format(time.RFC3339)).encode(),
+			Cursor: cursor.encode(),
 			Node:   todoPB,
 		})
 	}
 
+	// Get page info
 	numEdges := len(edges)
 	var startCursor, endCursor string
 	if numEdges > 0 && edges != nil {
@@ -138,14 +149,73 @@ func (tx *todoTransactionImpl) GetTodos(ctx context.Context, in *todoV1.GetTodos
 		endCursor = edges[numEdges-1].Cursor
 	}
 
+	// Check if there are more pages to fetch
+	hasNextPage, err := tx.hasNextPage(ctx, orderKey, cursorDirection, cursorField, edges[numEdges-1].Node)
+	if err != nil {
+		return nil, err
+	}
+
 	return &todoV1.GetTodosResponse{
 		Edges: edges,
 		PageInfo: &todoV1.PageInfo{
 			StartCursor: startCursor,
 			EndCursor:   endCursor,
-			// TODO this isn't correct. the requested page size can be N and the page size can also be N.
-			HasNextPage: numEdges < pageSize,
+			HasNextPage: hasNextPage,
 		},
 		TotalCount: int32(totalCount),
 	}, nil
+}
+
+func (tx *todoTransactionImpl) hasNextPage(ctx context.Context, orderKey, cursorDirection, cursorField string, todoPB *todoV1.Todo) (bool, error) {
+	type response struct {
+		Todos []models.Todo `json:"todos"`
+	}
+
+	// A query to see if there are more pages to retrieve
+	query := fmt.Sprintf(`
+		query getTodos($cursor: string, $pageSize: int) {
+			todos(func: eq(dgraph.type, "Todo"), %s: created_at, first: 1) @filter(%s(%s, $cursor)) {
+				id
+				created_at
+				title
+				is_done
+				creator {
+					id
+					name
+					created_at
+				}
+			}
+		}
+	`,
+		// e.g., "orderasc"
+		orderKey,
+		// e.g., "gt"
+		cursorDirection,
+		// e.g., "created_at"
+		cursorField,
+	)
+
+	// Create cursor
+	cursor, err := newCursor(cursorField, todoPB)
+	if err != nil {
+		return false, err
+	}
+
+	// Run query
+	res, err := tx.tx.QueryWithVars(ctx, query, map[string]string{
+		"$cursor": cursor.value,
+	})
+
+	// Handle error
+	if err != nil {
+		return false, fmt.Errorf("failed to query if there are more pages: %w", err)
+	}
+
+	// Unmarshal JSON into response struct
+	var r response
+	if err := json.Unmarshal(res.Json, &r); err != nil {
+		return false, fmt.Errorf("failed to unmarshal response to check if there is more to page: %w", err)
+	}
+
+	return len(r.Todos) > 0, nil
 }
