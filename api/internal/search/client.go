@@ -12,6 +12,9 @@ import (
 
 const (
 	indexForTodos = "todos"
+
+	attributeID    = "todo_id"
+	attributeTitle = "title"
 )
 
 type TodoID string
@@ -72,7 +75,7 @@ func (i *impl) Query(ctx context.Context, query string) ([]TodoID, error) {
 
 func todoToDocument(ctx context.Context, todo *todoV1.Todo) []map[string]interface{} {
 	return []map[string]interface{}{
-		{"todo_id": todo.Id, "title": todo.Title},
+		{attributeID: todo.Id, attributeTitle: todo.Title},
 	}
 }
 
@@ -86,7 +89,7 @@ func hitsToProtobufs(ctx context.Context, hits []interface{}) ([]*todoV1.Todo, e
 		} else {
 
 			// Get the ID
-			if id, ok := hitMap["todo_id"]; !ok {
+			if id, ok := hitMap[attributeID]; !ok {
 				return nil, errors.New("todo_id not present in search hit")
 			} else {
 				if idString, ok := id.(string); !ok {
@@ -97,7 +100,7 @@ func hitsToProtobufs(ctx context.Context, hits []interface{}) ([]*todoV1.Todo, e
 			}
 
 			// Get the title
-			if title, ok := hitMap["title"]; !ok {
+			if title, ok := hitMap[attributeTitle]; !ok {
 				return nil, errors.New("title not present in search hit")
 			} else {
 				if titleString, ok := title.(string); !ok {

@@ -1,8 +1,6 @@
 package search
 
 import (
-	"context"
-
 	"github.com/meilisearch/meilisearch-go"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -43,15 +41,4 @@ func (c Config) NewClient() meilisearch.ClientInterface {
 		Host:   "http://127.0.0.1:7700",
 		APIKey: "masterKey",
 	})
-}
-
-func CreateIndexes(ctx context.Context, client meilisearch.ClientInterface) error {
-	// Create an index if your index does not already exist
-	if _, err := client.Indexes().Create(meilisearch.CreateIndexRequest{
-		UID: indexForTodos,
-	}); err != nil {
-		return err
-	}
-
-	return nil
 }
