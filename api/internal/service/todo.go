@@ -26,6 +26,11 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 		return tx.CreateTodo(ctx, todo)
 	})
 
+	// TODO use Transactional Outbox pattern instead
+	if err := s.searchClient.AddOrUpdate(ctx, todo); err != nil {
+		return nil, err
+	}
+
 	if err != nil {
 		return nil, err
 	}

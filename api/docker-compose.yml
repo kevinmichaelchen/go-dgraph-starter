@@ -1,6 +1,14 @@
 version: '3.7'
 
 services:
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    environment:
+      MEILI_MASTER_KEY: masterKey
+    ports:
+    - 7700:7700
+    command: ["./meilisearch"]
+
   redis:
     image: library/redis:6.0.7-alpine
     restart: always
@@ -32,3 +40,4 @@ services:
 
 volumes:
   dgraphdata:
+  meilisearchdata:

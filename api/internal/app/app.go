@@ -9,6 +9,7 @@ import (
 	"github.com/MyOrg/go-dgraph-starter/internal/db"
 	"github.com/MyOrg/go-dgraph-starter/internal/graphql"
 	"github.com/MyOrg/go-dgraph-starter/internal/grpc"
+	"github.com/MyOrg/go-dgraph-starter/internal/search"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
 	"github.com/MyOrg/go-dgraph-starter/internal/service"
@@ -47,7 +48,10 @@ func (a App) Run() {
 		log.Fatal().Err(err).Msg("failed to build database schema")
 	}
 
-	svc := service.NewService(config, dbClient)
+	// Connect to search index
+	searchClient := search.NewClient(config.SearchConfig)
+
+	svc := service.NewService(config, dbClient, searchClient)
 
 	var wg sync.WaitGroup
 
