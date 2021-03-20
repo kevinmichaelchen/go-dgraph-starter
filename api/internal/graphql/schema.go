@@ -10,8 +10,9 @@ func (s Server) buildSchema() *graphql.Schema {
 	todoType := buildTypeForTodo()
 
 	queryFields := graphql.Fields{
-		"todo":  s.buildFieldForGetTodo(todoType),
-		"todos": s.buildFieldForGetTodos(todoType),
+		"todo":   s.buildFieldForGetTodo(todoType),
+		"todos":  s.buildFieldForGetTodos(todoType),
+		"search": s.buildFieldForSearchTodos(todoType),
 	}
 
 	queryType := graphql.NewObject(graphql.ObjectConfig{

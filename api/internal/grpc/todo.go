@@ -18,6 +18,10 @@ func (s Server) GetTodos(ctx context.Context, request *todoV1.GetTodosRequest) (
 	return s.service.GetTodos(ctx, request)
 }
 
+func (s Server) SearchTodos(ctx context.Context, request *todoV1.SearchTodosRequest) (*todoV1.SearchTodosResponse, error) {
+	return s.service.SearchTodos(ctx, request)
+}
+
 func (s Server) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoRequest) (*todoV1.UpdateTodoResponse, error) {
 	return s.service.UpdateTodo(ctx, request)
 }

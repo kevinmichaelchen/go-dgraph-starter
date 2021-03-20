@@ -136,3 +136,26 @@ func (s Service) DeleteTodo(ctx context.Context, request *todoV1.DeleteTodoReque
 
 	return response, nil
 }
+
+func (s Service) SearchTodos(ctx context.Context, request *todoV1.SearchTodosRequest) (*todoV1.SearchTodosResponse, error) {
+	// Perform search query
+	ids, err := s.searchClient.Query(ctx, request.Query)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO implement batch-lookup so we can minimize DB trips
+	// Look up entities from database
+	var todos []*todoV1.Todo
+	for _, id := range ids {
+		if res, err := s.GetTodo(ctx, &todoV1.GetTodoRequest{Id: string(id)}); err != nil {
+			return nil, err
+		} else {
+			todos = append(todos, res.Todo)
+		}
+	}
+
+	return &todoV1.SearchTodosResponse{
+		Todos: todos,
+	}, nil
+}
