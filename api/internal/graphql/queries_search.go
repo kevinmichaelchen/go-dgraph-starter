@@ -13,8 +13,17 @@ type SearchResponse struct {
 }
 
 func (s Server) buildFieldForSearchTodos(todoType *graphql.Object) *graphql.Field {
+	responseType := graphql.NewObject(graphql.ObjectConfig{
+		Name: "SearchResponse",
+		Fields: graphql.Fields{
+			"todos": &graphql.Field{
+				Type:        graphql.NewList(todoType),
+				Description: "List of Todos matching search query",
+			},
+		},
+	})
 	return &graphql.Field{
-		Type: graphql.NewList(todoType),
+		Type: responseType,
 		Args: graphql.FieldConfigArgument{
 			argQuery: &graphql.ArgumentConfig{
 				Type:        graphql.NewNonNull(graphql.String),

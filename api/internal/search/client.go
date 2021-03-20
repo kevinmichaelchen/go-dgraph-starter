@@ -10,19 +10,15 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
-const (
-	indexForTodos = "todos"
-
-	attributeID    = "todo_id"
-	attributeTitle = "title"
-)
-
 type TodoID string
 
 type Client interface {
 	AddOrUpdate(ctx context.Context, todo *todoV1.Todo) error
 	Query(ctx context.Context, query string) ([]TodoID, error)
 	Delete(ctx context.Context, id string) error
+
+	// Leaky abstraction. Escape hatch.
+	GetClient() meilisearch.ClientInterface
 }
 
 type impl struct {
@@ -30,8 +26,16 @@ type impl struct {
 }
 
 func NewClient(config Config) Client {
-	client := config.NewClient()
+	client := meilisearch.NewClient(meilisearch.Config{
+		Host:   config.URI,
+		APIKey: config.MasterKey,
+	})
+
 	return &impl{client: client}
+}
+
+func (i *impl) GetClient() meilisearch.ClientInterface {
+	return i.client
 }
 
 func (i *impl) AddOrUpdate(ctx context.Context, todo *todoV1.Todo) error {
@@ -39,7 +43,7 @@ func (i *impl) AddOrUpdate(ctx context.Context, todo *todoV1.Todo) error {
 
 	documents := todoToDocument(ctx, todo)
 
-	res, err := i.client.Documents(indexForTodos).AddOrUpdate(documents)
+	res, err := i.client.Documents(IndexForTodos).AddOrUpdate(documents)
 	if err != nil {
 		return fmt.Errorf("failed to AddOrUpdate documents to search index: %w", err)
 	}
@@ -51,7 +55,7 @@ func (i *impl) AddOrUpdate(ctx context.Context, todo *todoV1.Todo) error {
 
 func (i *impl) Query(ctx context.Context, query string) ([]TodoID, error) {
 	// Search the index
-	res, err := i.client.Search(indexForTodos).Search(meilisearch.SearchRequest{
+	res, err := i.client.Search(IndexForTodos).Search(meilisearch.SearchRequest{
 		Query: query,
 		Limit: 10,
 	})
@@ -75,7 +79,7 @@ func (i *impl) Query(ctx context.Context, query string) ([]TodoID, error) {
 }
 
 func (i *impl) Delete(ctx context.Context, id string) error {
-	_, err := i.client.Documents(indexForTodos).Delete(id)
+	_, err := i.client.Documents(IndexForTodos).Delete(id)
 	return err
 }
 

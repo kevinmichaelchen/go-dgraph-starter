@@ -51,6 +51,9 @@ func (a App) Run() {
 	// Connect to search index
 	searchClient := search.NewClient(config.SearchConfig)
 
+	// Create search index
+	search.CreateIndexes(context.TODO(), searchClient.GetClient())
+
 	svc := service.NewService(config, dbClient, searchClient)
 
 	var wg sync.WaitGroup

@@ -1,7 +1,6 @@
 package search
 
 import (
-	"github.com/meilisearch/meilisearch-go"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -34,11 +33,4 @@ func LoadConfig() Config {
 	c.MasterKey = viper.GetString(flagForMeilisearchMasterKey)
 
 	return c
-}
-
-func (c Config) NewClient() meilisearch.ClientInterface {
-	return meilisearch.NewClient(meilisearch.Config{
-		Host:   "http://127.0.0.1:7700",
-		APIKey: "masterKey",
-	})
 }

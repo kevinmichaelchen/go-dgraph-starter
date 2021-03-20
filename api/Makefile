@@ -13,10 +13,14 @@ GOPRIVATE := github.com/kevinmichaelchen
 
 .PHONY: all
 all:
-	docker-compose up -d
-	echo Sleeping for a bit
-	sleep 7
-	env \
+	@$(MAKE) dc-start
+	@echo "${BLUE}❤ sleeping for a bit${NC}"
+	@sleep 7
+	@$(MAKE) start
+
+.PHONY: start
+start:
+	@env \
 	  GO111MODULE=${GO111MODULE} \
 	  go run main.go
 

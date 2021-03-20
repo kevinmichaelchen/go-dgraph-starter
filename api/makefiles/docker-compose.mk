@@ -5,10 +5,10 @@ build:
 	  --build-arg GITHUB_USER=${GITHUB_USER} \
 	  --build-arg GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}
 
-.PHONY: start
-start:
+.PHONY: dc-start
+dc-start:
 	docker-compose up -d
 
-.PHONY: stop
-stop:
+.PHONY: dc-stop
+dc-stop:
 	docker-compose stop

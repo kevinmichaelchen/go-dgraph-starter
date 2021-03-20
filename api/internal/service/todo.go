@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/db"
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
@@ -168,7 +169,7 @@ func (s Service) SearchTodos(ctx context.Context, request *todoV1.SearchTodosReq
 	var todos []*todoV1.Todo
 	for _, id := range ids {
 		if res, err := s.GetTodo(ctx, &todoV1.GetTodoRequest{Id: string(id)}); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to find Todo by id '%s': %w", string(id), err)
 		} else {
 			todos = append(todos, res.Todo)
 		}

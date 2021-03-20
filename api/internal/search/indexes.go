@@ -8,19 +8,17 @@ import (
 )
 
 func CreateIndexes(ctx context.Context, client meilisearch.ClientInterface) error {
-	// TODO nuke index shouldn't run normally
-	client.Indexes().Delete(indexForTodos)
 
 	// Create an index if your index does not already exist
 	if _, err := client.Indexes().Create(meilisearch.CreateIndexRequest{
-		UID:        indexForTodos,
+		UID:        IndexForTodos,
 		PrimaryKey: attributeID,
 	}); err != nil {
 		return fmt.Errorf("failed to create search index: %w", err)
 	}
 
 	// Not all attributes should be searchable (i.e., matched for query words), e.g., the primary key.
-	if _, err := client.Settings(indexForTodos).UpdateSearchableAttributes([]string{
+	if _, err := client.Settings(IndexForTodos).UpdateSearchableAttributes([]string{
 		attributeTitle,
 	}); err != nil {
 		return fmt.Errorf("failed to update searchable attributes: %w", err)
