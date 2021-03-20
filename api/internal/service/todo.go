@@ -15,6 +15,8 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 		return nil, err
 	}
 
+	// TODO add validation
+
 	todo := &todoV1.Todo{
 		Id:        xid.New().String(),
 		CreatedAt: ptypes.TimestampNow(),
@@ -43,6 +45,8 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoRequest) (*todoV1.UpdateTodoResponse, error) {
 	var response *todoV1.UpdateTodoResponse
 
+	// TODO add validation
+
 	if err := s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
 		if res, err := tx.UpdateTodo(ctx, request); err != nil {
 			return err
@@ -51,6 +55,15 @@ func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoReque
 		}
 		return nil
 	}); err != nil {
+		return nil, err
+	}
+
+	// TODO use Transactional Outbox pattern instead
+	todoPB := &todoV1.Todo{
+		Id:    request.Id,
+		Title: request.Title,
+	}
+	if err := s.searchClient.AddOrUpdate(ctx, todoPB); err != nil {
 		return nil, err
 	}
 
@@ -131,6 +144,12 @@ func (s Service) DeleteTodo(ctx context.Context, request *todoV1.DeleteTodoReque
 		}
 		return nil
 	}); err != nil {
+		return nil, err
+	}
+
+	// TODO use Transactional Outbox pattern instead
+	// Delete document from search index
+	if err := s.searchClient.Delete(ctx, request.Id); err != nil {
 		return nil, err
 	}
 

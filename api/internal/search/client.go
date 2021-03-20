@@ -22,6 +22,7 @@ type TodoID string
 type Client interface {
 	AddOrUpdate(ctx context.Context, todo *todoV1.Todo) error
 	Query(ctx context.Context, query string) ([]TodoID, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type impl struct {
@@ -71,6 +72,11 @@ func (i *impl) Query(ctx context.Context, query string) ([]TodoID, error) {
 	}
 
 	return ids, nil
+}
+
+func (i *impl) Delete(ctx context.Context, id string) error {
+	_, err := i.client.Documents(indexForTodos).Delete(id)
+	return err
 }
 
 func todoToDocument(ctx context.Context, todo *todoV1.Todo) []map[string]interface{} {

@@ -8,9 +8,13 @@ import (
 )
 
 func CreateIndexes(ctx context.Context, client meilisearch.ClientInterface) error {
+	// TODO nuke index shouldn't run normally
+	client.Indexes().Delete(indexForTodos)
+
 	// Create an index if your index does not already exist
 	if _, err := client.Indexes().Create(meilisearch.CreateIndexRequest{
-		UID: indexForTodos,
+		UID:        indexForTodos,
+		PrimaryKey: attributeID,
 	}); err != nil {
 		return fmt.Errorf("failed to create search index: %w", err)
 	}
