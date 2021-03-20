@@ -12,16 +12,19 @@ import (
 func (s Server) buildFieldForUpdateTodo(todoType *graphql.Object) *graphql.Field {
 	return &graphql.Field{
 		Type:        todoType,
-		Description: "Update Todo",
+		Description: "Update a Todo",
 		Args: graphql.FieldConfigArgument{
 			argID: &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.String),
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "The ID of the Todo the client wishes to update",
 			},
 			argTitle: &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type:        graphql.String,
+				Description: "The Todo's new title. This argument is optional.",
 			},
 			argDone: &graphql.ArgumentConfig{
-				Type: graphql.Boolean,
+				Type:        graphql.Boolean,
+				Description: "Whether the Todo is being marked as completed. This argument is optional.",
 			},
 		},
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {

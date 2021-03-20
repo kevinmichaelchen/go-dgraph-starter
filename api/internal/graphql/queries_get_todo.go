@@ -13,7 +13,8 @@ func (s Server) buildFieldForGetTodo(todoType *graphql.Object) *graphql.Field {
 		Type: todoType,
 		Args: graphql.FieldConfigArgument{
 			argID: &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type:        graphql.String,
+				Description: "The Todo's ID",
 			},
 		},
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {

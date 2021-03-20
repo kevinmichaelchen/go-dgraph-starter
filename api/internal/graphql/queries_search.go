@@ -14,7 +14,8 @@ type SearchResponse struct {
 
 func (s Server) buildFieldForSearchTodos(todoType *graphql.Object) *graphql.Field {
 	responseType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "SearchResponse",
+		Name:        "SearchResponse",
+		Description: "A response containing a list of Todos that match the search query",
 		Fields: graphql.Fields{
 			"todos": &graphql.Field{
 				Type:        graphql.NewList(todoType),
@@ -23,7 +24,8 @@ func (s Server) buildFieldForSearchTodos(todoType *graphql.Object) *graphql.Fiel
 		},
 	})
 	return &graphql.Field{
-		Type: responseType,
+		Type:        responseType,
+		Description: "Retrieve a page of Todo objects that match the search query",
 		Args: graphql.FieldConfigArgument{
 			argQuery: &graphql.ArgumentConfig{
 				Type:        graphql.NewNonNull(graphql.String),
@@ -52,7 +54,6 @@ func (s Server) buildFieldForSearchTodos(todoType *graphql.Object) *graphql.Fiel
 			// Build the response protobuf and return it
 			return buildResponseForSearchTodos(res)
 		},
-		Description: "Retrieve a page of Todo objects",
 	}
 }
 

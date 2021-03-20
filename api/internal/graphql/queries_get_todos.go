@@ -22,11 +22,12 @@ type TodosPage struct {
 
 func (s Server) buildFieldForGetTodos(todoType *graphql.Object) *graphql.Field {
 	typeEdge := graphql.NewObject(graphql.ObjectConfig{
-		Name: "TodosEdge",
+		Name:        "TodosEdge",
+		Description: "A Relay-compliant edge that contains a base-64 encoded cursor and a node",
 		Fields: graphql.Fields{
 			"node": &graphql.Field{
 				Type:        todoType,
-				Description: "A Todo",
+				Description: "A node contains information about the Todo",
 			},
 			"cursor": &graphql.Field{
 				Type:        graphql.String,
@@ -36,7 +37,8 @@ func (s Server) buildFieldForGetTodos(todoType *graphql.Object) *graphql.Field {
 	})
 	typePageInfo := buildTypePageInfo()
 	typeTodosPage := graphql.NewObject(graphql.ObjectConfig{
-		Name: "TodosPage",
+		Name:        "TodosPage",
+		Description: "A page of Todos",
 		Fields: graphql.Fields{
 			"totalCount": &graphql.Field{
 				Type:        graphql.Int,

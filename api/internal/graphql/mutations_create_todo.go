@@ -14,7 +14,8 @@ func (s Server) buildFieldForCreateTodo(todoType *graphql.Object) *graphql.Field
 		Description: "Create new Todo",
 		Args: graphql.FieldConfigArgument{
 			argTitle: &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.String),
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "The Todo's title",
 			},
 		},
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {

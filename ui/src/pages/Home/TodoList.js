@@ -22,9 +22,7 @@ const TodoList = ({ edges }) => {
 
 const DELETE_TODO_MUTATION = gql`
   mutation deleteTodo($id: String!) {
-    deleteTodo(id: $id) {
-      success
-    }
+    deleteTodo(id: $id)
   }
 `;
 
