@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/db"
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
@@ -15,6 +16,8 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 		return nil, err
 	}
 
+	// TODO add validation
+
 	todo := &todoV1.Todo{
 		Id:        xid.New().String(),
 		CreatedAt: ptypes.TimestampNow(),
@@ -25,6 +28,11 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 	err = s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
 		return tx.CreateTodo(ctx, todo)
 	})
+
+	// TODO use Transactional Outbox pattern instead
+	if err := s.searchClient.AddOrUpdate(ctx, todo); err != nil {
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, err
@@ -38,6 +46,8 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoRequest) (*todoV1.UpdateTodoResponse, error) {
 	var response *todoV1.UpdateTodoResponse
 
+	// TODO add validation
+
 	if err := s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
 		if res, err := tx.UpdateTodo(ctx, request); err != nil {
 			return err
@@ -46,6 +56,15 @@ func (s Service) UpdateTodo(ctx context.Context, request *todoV1.UpdateTodoReque
 		}
 		return nil
 	}); err != nil {
+		return nil, err
+	}
+
+	// TODO use Transactional Outbox pattern instead
+	todoPB := &todoV1.Todo{
+		Id:    request.Id,
+		Title: request.Title,
+	}
+	if err := s.searchClient.AddOrUpdate(ctx, todoPB); err != nil {
 		return nil, err
 	}
 
@@ -129,5 +148,34 @@ func (s Service) DeleteTodo(ctx context.Context, request *todoV1.DeleteTodoReque
 		return nil, err
 	}
 
+	// TODO use Transactional Outbox pattern instead
+	// Delete document from search index
+	if err := s.searchClient.Delete(ctx, request.Id); err != nil {
+		return nil, err
+	}
+
 	return response, nil
+}
+
+func (s Service) SearchTodos(ctx context.Context, request *todoV1.SearchTodosRequest) (*todoV1.SearchTodosResponse, error) {
+	// Perform search query
+	ids, err := s.searchClient.Query(ctx, request.Query)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO implement batch-lookup so we can minimize DB trips
+	// Look up entities from database
+	var todos []*todoV1.Todo
+	for _, id := range ids {
+		if res, err := s.GetTodo(ctx, &todoV1.GetTodoRequest{Id: string(id)}); err != nil {
+			return nil, fmt.Errorf("failed to find Todo by id '%s': %w", string(id), err)
+		} else {
+			todos = append(todos, res.Todo)
+		}
+	}
+
+	return &todoV1.SearchTodosResponse{
+		Todos: todos,
+	}, nil
 }

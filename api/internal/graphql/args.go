@@ -13,4 +13,5 @@ const (
 	argAfter   = "after"
 	argLast    = "last"
 	argBefore  = "before"
+	argQuery   = "query"
 )

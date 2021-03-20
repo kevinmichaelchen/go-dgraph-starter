@@ -5,12 +5,11 @@ import (
 	"strings"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/kontext"
+	"github.com/MyOrg/go-dgraph-starter/internal/obs"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/rs/zerolog/log"
-
-	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
 
 	grpczerolog "github.com/grpc-ecosystem/go-grpc-middleware/providers/zerolog/v2"
 	middleware "github.com/grpc-ecosystem/go-grpc-middleware/v2"
@@ -22,7 +21,7 @@ import (
 
 func newServer() *grpcGo.Server {
 	// Logger is used, allowing pre-definition of certain fields by the user.
-	logger := configuration.GetLogger()
+	logger := obs.GetLogger()
 	// Shared options for the logger, with a custom gRPC code to log level function.
 	opts := []logging.Option{
 		logging.WithDecider(func(fullMethodName string, err error) bool {

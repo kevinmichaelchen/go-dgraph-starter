@@ -3,6 +3,8 @@ package configuration
 import (
 	"encoding/json"
 
+	"github.com/MyOrg/go-dgraph-starter/internal/obs"
+	"github.com/MyOrg/go-dgraph-starter/internal/search"
 	"github.com/rs/zerolog/log"
 
 	"github.com/rs/xid"
@@ -30,13 +32,23 @@ type Config struct {
 	// HTTPPort controls what port our HTTP server runs on.
 	HTTPPort int
 
-	SQLConfig     SQLConfig
-	RedisConfig   RedisConfig
-	DgraphConfig  DgraphConfig
-	LoggingConfig LoggingConfig
+	// SQLConfig is the configuration for SQL database connection.
+	SQLConfig SQLConfig
+
+	// RedisConfig is the configuration for Redis connection.
+	RedisConfig RedisConfig
+
+	// DgraphConfig is the configuration for Dgraph database connection.
+	DgraphConfig DgraphConfig
+
+	// SearchConfig is the configuration for connecting to the search index.
+	SearchConfig search.Config
+
+	// LoggingConfig is the configuration for logging.
+	LoggingConfig obs.LoggingConfig
 
 	// TraceConfig contains config info for how we do tracing.
-	TraceConfig TraceConfig
+	TraceConfig obs.TraceConfig
 }
 
 func (c Config) String() string {
@@ -49,7 +61,7 @@ func (c Config) String() string {
 
 func LoadConfig() Config {
 	c := Config{
-		AppName:  "api-monorepo",
+		AppName:  "todo-api",
 		AppID:    xid.New().String(),
 		GrpcPort: 8084,
 		HTTPPort: 8085,
@@ -58,8 +70,9 @@ func LoadConfig() Config {
 	c.SQLConfig = LoadSQLConfig()
 	c.RedisConfig = LoadRedisConfig()
 	c.DgraphConfig = LoadDgraphConfig()
-	c.TraceConfig = LoadTraceConfig()
-	c.LoggingConfig = LoadLoggingConfig()
+	c.TraceConfig = obs.LoadTraceConfig()
+	c.LoggingConfig = obs.LoadLoggingConfig()
+	c.SearchConfig = search.LoadConfig()
 
 	flag.Int(flagForGrpcPort, c.GrpcPort, "gRPC port")
 	flag.Int(flagForHTTPPort, c.HTTPPort, "HTTP port")

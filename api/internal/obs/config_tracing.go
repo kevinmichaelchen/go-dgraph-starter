@@ -1,4 +1,4 @@
-package configuration
+package obs
 
 import (
 	flag "github.com/spf13/pflag"

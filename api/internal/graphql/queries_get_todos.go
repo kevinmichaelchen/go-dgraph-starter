@@ -1,7 +1,6 @@
 package graphql
 
 import (
-	"errors"
 	"fmt"
 
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
@@ -196,7 +195,7 @@ func buildGetTodosRequestFromArgs(args map[string]interface{}) (*todoV1.GetTodos
 				}
 			}
 		} else {
-			return nil, errors.New("'first' not an integer")
+			return nil, fmt.Errorf("'%s' not an integer: %T", argFirst, value)
 		}
 	}
 
@@ -212,7 +211,7 @@ func buildGetTodosRequestFromArgs(args map[string]interface{}) (*todoV1.GetTodos
 				}
 			}
 		} else {
-			return nil, errors.New("'first' not a string")
+			return nil, fmt.Errorf("'%s' not a string: %T", argAfter, value)
 		}
 	}
 
@@ -228,7 +227,7 @@ func buildGetTodosRequestFromArgs(args map[string]interface{}) (*todoV1.GetTodos
 				}
 			}
 		} else {
-			return nil, errors.New("'last' not an integer")
+			return nil, fmt.Errorf("'%s' not an integer: %T", argLast, value)
 		}
 	}
 
@@ -244,7 +243,7 @@ func buildGetTodosRequestFromArgs(args map[string]interface{}) (*todoV1.GetTodos
 				}
 			}
 		} else {
-			return nil, errors.New("'first' not a string")
+			return nil, fmt.Errorf("'%s' not a string: %T", argBefore, value)
 		}
 	}
 

@@ -15,6 +15,7 @@ import "myorg/todo/v1/get_todo.proto";
 import "myorg/todo/v1/get_todos.proto";
 import "myorg/todo/v1/update_todo.proto";
 import "myorg/todo/v1/delete_todo.proto";
+import "myorg/todo/v1/search.proto";
 
 service TodoService {
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);
@@ -22,4 +23,5 @@ service TodoService {
     rpc GetTodos(GetTodosRequest) returns (GetTodosResponse);
     rpc UpdateTodo(UpdateTodoRequest) returns (UpdateTodoResponse);
     rpc DeleteTodo(DeleteTodoRequest) returns (DeleteTodoResponse);
+    rpc SearchTodos(SearchTodosRequest) returns (SearchTodosResponse);
 }
