@@ -57,6 +57,12 @@ result you get extreme type safety.
 
 For services that aren't expected to have a whole lot of data relationships, SQL is still an excellent choice, and sqlboiler is an ideal ORM for keeping your persistence layer code strongly typed.
 
+#### Meilisearch
+We use [MeiliSearch](https://www.meilisearch.com/) as our "open source, blazingly fast and hyper relevant search-engine."
+
+Per their site, MeiliSearch is effective and accessible:
+> Efficient search engines are often only accessible to companies with the financial means and resources necessary to develop a search solution adapted to their needs. The majority of other companies that do not have the means or do not realize that the lack of relevance of a search greatly impacts the pleasure of navigation on their application, end up with poor solutions that are more frustrating than effective, for both the developer and the user. 
+
 ### Patterns
 #### Cursor pagination
 * https://uxdesign.cc/why-facebook-says-cursor-pagination-is-the-greatest-d6b98d86b6c0
