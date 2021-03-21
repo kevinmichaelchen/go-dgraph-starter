@@ -28,6 +28,21 @@ const schema = `
     name
     created_at
   }
+
+  event_type: string @index(exact) .
+  event_at: datetime @index(hour) .
+  is_published_to_search_index: bool .
+
+  type TodoEvent {
+    event_type
+    event_at
+    is_published_to_search_index
+    id
+    created_at
+    title
+    is_done
+    creator
+  }
 `
 
 func BuildSchema(ctx context.Context, dgraphClient *dgo.Dgraph) error {
