@@ -38,7 +38,7 @@ func (a App) Run() {
 
 	// Drop all data and schema
 	log.Info().Msg("Dropping all Dgraph data...")
-	if err := db.Nuke(context.Background(), dgraphClient); err != nil {
+	if err := db.NukeDataAndSchema(context.Background(), dgraphClient); err != nil {
 		log.Fatal().Err(err).Msg("failed to nuke database")
 	}
 
