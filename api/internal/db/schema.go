@@ -31,13 +31,14 @@ const schema = `
 
   event_type: string @index(exact) .
   event_at: datetime @index(hour) .
+  todo_id: string @index(exact) .
   is_published_to_search_index: bool .
 
   type TodoEvent {
     event_type
     event_at
     is_published_to_search_index
-    id
+    todo_id
     created_at
     title
     is_done
