@@ -45,23 +45,24 @@ func (tx *todoTransactionImpl) UpdateTodo(ctx context.Context, request *todoV1.U
 	fields := pathMap(request.FieldMask.Paths)
 
 	if _, ok := fields["title"]; ok {
-		nquads = append(nquads, nquadStr("uid(todo)", "title", request.Title))
+		nquads = append(nquads, nquadStr("uid(todo)", fieldTitle, request.Title))
 	}
 
 	if _, ok := fields["done"]; ok {
-		nquads = append(nquads, nquadBool("uid(todo)", "is_done", request.Done))
+		nquads = append(nquads, nquadBool("uid(todo)", fieldDone, request.Done))
 	}
 
 	if len(nquads) > 0 {
-		mu := &api.Mutation{
-			// Only mutate if we find one entity
-			Cond: `@if(eq(len(todo), 1))`,
-			Set:  nquads,
-		}
 		req := &api.Request{
-			Query:     query,
-			Vars:      map[string]string{"$id": id},
-			Mutations: []*api.Mutation{mu},
+			Query: query,
+			Vars:  map[string]string{"$id": id},
+			Mutations: []*api.Mutation{
+				{
+					// Only mutate if we find one entity
+					Cond: `@if(eq(len(todo), 1))`,
+					Set:  nquads,
+				},
+			},
 		}
 
 		// Perform query
