@@ -25,7 +25,9 @@ func (tx *todoTransactionImpl) DeleteTodo(ctx context.Context, id string) (*todo
 				todo_id as id
 				todo_title as title
 				todo_is_done as is_done
-				todo_creator_id as creator
+				creator {
+					todo_creator_id as id
+				}
 			}
 		}
 		`,
@@ -54,7 +56,6 @@ func (tx *todoTransactionImpl) DeleteTodo(ctx context.Context, id string) (*todo
 					nquadRel("_:todoEvent", fieldTitle, "val(todo_title)"),
 					nquadStr("_:todoEvent", fieldCreatedAt, nowStr),
 					nquadRel("_:todoEvent", fieldDone, "val(todo_is_done)"),
-					// TODO fix
 					nquadRel("_:todoEvent", fieldCreator, "uid(todo_creator_id)"),
 				},
 			},
