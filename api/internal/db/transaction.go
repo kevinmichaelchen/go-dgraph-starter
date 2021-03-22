@@ -22,16 +22,17 @@ const (
 
 	fieldID        = "id"
 	fieldCreatedAt = "created_at"
+	fieldCreator   = "creator"
 
 	fieldEventAt                     = "event_at"
 	fieldEventType                   = "event_type"
 	fieldTodoID                      = "todo_id"
 	fieldEventPublishedToSearchIndex = "is_published_to_search_index"
 
-	fieldName    = "name"
-	fieldTitle   = "title"
-	fieldDone    = "is_done"
-	fieldCreator = "creator"
+	fieldName      = "name"
+	fieldTitle     = "title"
+	fieldDone      = "is_done"
+	fieldCreatorID = "creator_id"
 )
 
 type Transaction interface {

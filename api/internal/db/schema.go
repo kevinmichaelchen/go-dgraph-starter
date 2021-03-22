@@ -33,6 +33,7 @@ const schema = `
   event_at: datetime @index(hour) .
   todo_id: string @index(exact) .
   is_published_to_search_index: bool .
+  creator_id: string @index(exact) .
 
   type TodoEvent {
     event_type
@@ -42,7 +43,7 @@ const schema = `
     created_at
     title
     is_done
-    creator
+    creator_id
   }
 `
 

@@ -89,7 +89,7 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 			nquadStr("_:todoEvent", fieldTitle, item.Title),
 			nquadStr("_:todoEvent", fieldCreatedAt, nowStr),
 			nquadBool("_:todoEvent", fieldDone, item.Done),
-			nquadRel("_:todoEvent", fieldCreator, creatorUID),
+			nquadStr("_:todoEvent", fieldCreatorID, item.CreatorId),
 		},
 	})
 
