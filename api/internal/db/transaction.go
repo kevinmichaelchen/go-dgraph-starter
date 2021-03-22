@@ -15,8 +15,9 @@ const (
 	eventTypeUpdate = "update"
 	eventTypeDelete = "delete"
 
-	dgraphTypeUser = "User"
-	dgraphTypeTodo = "Todo"
+	dgraphTypeUser      = "User"
+	dgraphTypeTodo      = "Todo"
+	dgraphTypeTodoEvent = "TodoEvent"
 
 	fieldDgraphType = "dgraph.type"
 

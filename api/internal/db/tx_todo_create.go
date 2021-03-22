@@ -81,7 +81,7 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 			nquadBool("_:todo", fieldDone, item.Done),
 			nquadRel("_:todo", fieldCreator, creatorUID),
 
-			nquadStr("_:todoEvent", fieldDgraphType, dgraphTypeTodo),
+			nquadStr("_:todoEvent", fieldDgraphType, dgraphTypeTodoEvent),
 			nquadStr("_:todoEvent", fieldEventType, eventTypeCreate),
 			nquadStr("_:todoEvent", fieldEventAt, nowStr),
 			nquadBool("_:todoEvent", fieldEventPublishedToSearchIndex, false),

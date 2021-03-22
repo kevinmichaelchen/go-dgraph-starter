@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/MyOrg/go-dgraph-starter/internal/obs"
 	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
@@ -24,30 +25,40 @@ func (tx *todoTransactionImpl) UpdateTodo(ctx context.Context, request *todoV1.U
 
 	id := request.Id
 
+	nowStr := time.Now().UTC().Format(time.RFC3339)
+
 	query := `
 		query getTodo($id: string) {
 			todo as var(func: eq(id, $id)) {
-				id
-				created_at
-				title
-				is_done
+				todo_id as id
+				todo_created_at as created_at
+				todo_title as title
+				todo_is_done as is_done
 				creator {
-					id
-					name
-					created_at
+					todo_creator_id as id
 				}
 			}
 		}
 	`
 
-	// Check our FieldMask to see which fields we want to update
-	var nquads []*api.NQuad
-	fields := pathMap(request.FieldMask.Paths)
+	nquads := []*api.NQuad{
+		// Insert event
+		nquadStr("_:todoEvent", fieldDgraphType, dgraphTypeTodoEvent),
+		nquadStr("_:todoEvent", fieldEventType, eventTypeUpdate),
+		nquadStr("_:todoEvent", fieldEventAt, nowStr),
+		nquadBool("_:todoEvent", fieldEventPublishedToSearchIndex, false),
+		nquadRel("_:todoEvent", fieldTodoID, "val(todo_id)"),
+		nquadRel("_:todoEvent", fieldTitle, "val(todo_title)"),
+		nquadRel("_:todoEvent", fieldCreatedAt, "val(todo_created_at)"),
+		nquadRel("_:todoEvent", fieldDone, "val(todo_is_done)"),
+		nquadRel("_:todoEvent", fieldCreatorID, "val(todo_creator_id)"),
+	}
 
+	// Check our FieldMask to see which fields we want to update
+	fields := pathMap(request.FieldMask.Paths)
 	if _, ok := fields["title"]; ok {
 		nquads = append(nquads, nquadStr("uid(todo)", fieldTitle, request.Title))
 	}
-
 	if _, ok := fields["done"]; ok {
 		nquads = append(nquads, nquadBool("uid(todo)", fieldDone, request.Done))
 	}

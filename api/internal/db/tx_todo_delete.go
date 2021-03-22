@@ -23,6 +23,7 @@ func (tx *todoTransactionImpl) DeleteTodo(ctx context.Context, id string) (*todo
 		query getTodo($id: string) {
 			todo as var(func: eq(id, $id)) {
 				todo_id as id
+				todo_created_at as created_at
 				todo_title as title
 				todo_is_done as is_done
 				creator {
@@ -48,13 +49,13 @@ func (tx *todoTransactionImpl) DeleteTodo(ctx context.Context, id string) (*todo
 
 				// Insert event
 				Set: []*api.NQuad{
-					nquadStr("_:todoEvent", fieldDgraphType, dgraphTypeTodo),
-					nquadStr("_:todoEvent", fieldEventType, eventTypeCreate),
+					nquadStr("_:todoEvent", fieldDgraphType, dgraphTypeTodoEvent),
+					nquadStr("_:todoEvent", fieldEventType, eventTypeDelete),
 					nquadStr("_:todoEvent", fieldEventAt, nowStr),
 					nquadBool("_:todoEvent", fieldEventPublishedToSearchIndex, false),
 					nquadRel("_:todoEvent", fieldTodoID, "val(todo_id)"),
 					nquadRel("_:todoEvent", fieldTitle, "val(todo_title)"),
-					nquadStr("_:todoEvent", fieldCreatedAt, nowStr),
+					nquadRel("_:todoEvent", fieldCreatedAt, "val(todo_created_at)"),
 					nquadRel("_:todoEvent", fieldDone, "val(todo_is_done)"),
 					nquadRel("_:todoEvent", fieldCreatorID, "val(todo_creator_id)"),
 				},
