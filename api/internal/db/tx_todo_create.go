@@ -93,6 +93,7 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 		},
 	})
 
+	// Handle error
 	if err != nil {
 		return err
 	}
