@@ -21,7 +21,7 @@ func TestPagination(t *testing.T) {
 		Reset(func() {
 			// Drop all data and schema
 			log.Info().Msg("Dropping all Dgraph data...")
-			if err := db.NukeData(context.Background(), dgraphClient); err != nil {
+			if err := db.NukeDataButNotSchema(context.Background(), dgraphClient); err != nil {
 				log.Fatal().Err(err).Msg("failed to nuke data")
 			}
 		})
@@ -62,7 +62,7 @@ func TestCrud(t *testing.T) {
 		Reset(func() {
 			// Drop all data and schema
 			log.Info().Msg("Dropping all Dgraph data...")
-			if err := db.NukeData(context.Background(), dgraphClient); err != nil {
+			if err := db.NukeDataButNotSchema(context.Background(), dgraphClient); err != nil {
 				log.Fatal().Err(err).Msg("failed to nuke data")
 			}
 		})

@@ -11,5 +11,5 @@ func (s Service) DropAllData(ctx context.Context) error {
 	if _, err := s.searchClient.GetClient().Documents(search.IndexForTodos).DeleteAllDocuments(); err != nil {
 		return err
 	}
-	return db.NukeData(ctx, s.dbClient.GetClient())
+	return db.NukeDataButNotSchema(ctx, s.dbClient.GetClient())
 }

@@ -54,10 +54,10 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 			// Insert user into database
 			if res, err := tx.tx.Mutate(ctx, &api.Mutation{
 				Set: []*api.NQuad{
-					nquadStr("_:newUser", "dgraph.type", "User"),
-					nquadStr("_:newUser", "id", item.CreatorId),
-					nquadStr("_:newUser", "name", "Alice"),
-					nquadStr("_:newUser", "created_at", nowStr),
+					nquadStr("_:newUser", fieldDgraphType, dgraphTypeUser),
+					nquadStr("_:newUser", fieldID, item.CreatorId),
+					nquadStr("_:newUser", fieldName, "Alice"),
+					nquadStr("_:newUser", fieldCreatedAt, nowStr),
 				},
 			}); err != nil {
 				return err
@@ -74,15 +74,26 @@ func (tx *todoTransactionImpl) CreateTodo(ctx context.Context, item *todoV1.Todo
 	// Insert into database
 	res, err := tx.tx.Mutate(ctx, &api.Mutation{
 		Set: []*api.NQuad{
-			nquadStr("_:todo", "dgraph.type", "Todo"),
-			nquadStr("_:todo", "id", item.Id),
-			nquadStr("_:todo", "title", item.Title),
-			nquadStr("_:todo", "created_at", nowStr),
-			nquadBool("_:todo", "is_done", item.Done),
-			nquadRel("_:todo", "creator", creatorUID),
+			nquadStr("_:todo", fieldDgraphType, dgraphTypeTodo),
+			nquadStr("_:todo", fieldID, item.Id),
+			nquadStr("_:todo", fieldTitle, item.Title),
+			nquadStr("_:todo", fieldCreatedAt, nowStr),
+			nquadBool("_:todo", fieldDone, item.Done),
+			nquadRel("_:todo", fieldCreator, creatorUID),
+
+			nquadStr("_:todoEvent", fieldDgraphType, dgraphTypeTodoEvent),
+			nquadStr("_:todoEvent", fieldEventType, eventTypeCreate),
+			nquadStr("_:todoEvent", fieldEventAt, nowStr),
+			nquadBool("_:todoEvent", fieldEventPublishedToSearchIndex, false),
+			nquadStr("_:todoEvent", fieldTodoID, item.Id),
+			nquadStr("_:todoEvent", fieldTitle, item.Title),
+			nquadStr("_:todoEvent", fieldCreatedAt, nowStr),
+			nquadBool("_:todoEvent", fieldDone, item.Done),
+			nquadStr("_:todoEvent", fieldCreatorID, item.CreatorId),
 		},
 	})
 
+	// Handle error
 	if err != nil {
 		return err
 	}

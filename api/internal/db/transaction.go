@@ -10,6 +10,32 @@ import (
 	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
 )
 
+const (
+	eventTypeCreate = "create"
+	eventTypeUpdate = "update"
+	eventTypeDelete = "delete"
+
+	dgraphTypeUser      = "User"
+	dgraphTypeTodo      = "Todo"
+	dgraphTypeTodoEvent = "TodoEvent"
+
+	fieldDgraphType = "dgraph.type"
+
+	fieldID        = "id"
+	fieldCreatedAt = "created_at"
+	fieldCreator   = "creator"
+
+	fieldEventAt                     = "event_at"
+	fieldEventType                   = "event_type"
+	fieldTodoID                      = "todo_id"
+	fieldEventPublishedToSearchIndex = "is_published_to_search_index"
+
+	fieldName      = "name"
+	fieldTitle     = "title"
+	fieldDone      = "is_done"
+	fieldCreatorID = "creator_id"
+)
+
 type Transaction interface {
 	TodoTransaction
 }
