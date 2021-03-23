@@ -1,6 +1,6 @@
 PHONY: migrate
 migrate:
-	docker run -v $(shell pwd)/db/migrations:/migrations \
+	docker run --rm -v $(shell pwd)/db/migrations:/migrations \
 	  --network host \
 	  migrate/migrate \
 	  -path /migrations \
@@ -9,7 +9,7 @@ migrate:
 
 PHONY: migrate-drop
 migrate-drop:
-	docker run -it -v $(shell pwd)/db/migrations:/migrations \
+	docker run --rm -it -v $(shell pwd)/db/migrations:/migrations \
 	  --network host \
 	  migrate/migrate \
 	  -path /migrations \

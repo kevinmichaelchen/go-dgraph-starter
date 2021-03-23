@@ -42,7 +42,7 @@ func (s Server) Run() {
 	log.Info().Msgf("Starting %s on %s...", s, address)
 	grpcServer := newServer()
 
-	userV1.RegisterTodoServiceServer(grpcServer, s)
+	userV1.RegisterUserServiceServer(grpcServer, s)
 	health.RegisterHealthServer(grpcServer, s)
 
 	// Register reflection service on gRPC server.
