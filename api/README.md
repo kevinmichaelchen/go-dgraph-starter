@@ -1,11 +1,14 @@
 # api
 
+If you're using an editor like VSCode or JetBrains, it's best to open the individual APIs as separate projects,
+since I wanted to avoid the complexity that comes with using a parent go.mod file.
+
 ## Getting started
 Running
 ```
 docker-compose up -d
 ```
-should spin up the dependencies: Jaeger, Redis, Dgraph.
+should spin up the dependencies: Jaeger, Redis, Postgres, Meilisearch, and Dgraph.
 
 Then running
 ```
