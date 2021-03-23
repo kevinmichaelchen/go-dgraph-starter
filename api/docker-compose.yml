@@ -38,6 +38,19 @@ services:
     volumes:
     - dgraphdata:/dgraph
 
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: myorg
+      POSTGRES_PASSWORD: myorg
+      POSTGRES_DB: myorg
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
 volumes:
   dgraphdata:
   meilisearchdata:
+  pgdata:
