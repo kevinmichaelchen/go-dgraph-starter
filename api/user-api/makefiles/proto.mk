@@ -1,6 +1,6 @@
 .PHONY: protoc
 protoc:
-	docker run --rm -v $(shell pwd):/defs namely/protoc-all -l go -i ./proto -d ./proto/myorg/todo/v1 -o ./pkg/pb --go-source-relative
+	docker run --rm -v $(shell pwd):/defs namely/protoc-all -l go -i ./proto -d ./proto/myorg/user/v1 -o ./pkg/pb --go-source-relative
 
 .PHONY: protodoc
 protodoc:
