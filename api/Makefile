@@ -24,4 +24,10 @@ start:
 	  GO111MODULE=${GO111MODULE} \
 	  go run main.go
 
-include makefiles/*.mk
+.PHONY: dc-start
+dc-start:
+	docker-compose up -d
+
+.PHONY: dc-stop
+dc-stop:
+	docker-compose stop
