@@ -1,6 +1,13 @@
 version: '3.7'
 
 services:
+  users:
+    image: kevinmichaelchen/go-sqlboiler-user-api:0.0.1
+    depends_on:
+      - postgres
+      - redis
+      - jaeger
+
   meilisearch:
     image: getmeili/meilisearch:latest
     environment:
