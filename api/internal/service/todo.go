@@ -7,7 +7,6 @@ import (
 	"github.com/MyOrg/todo-api/internal/obs"
 	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 	"github.com/golang/protobuf/ptypes"
-	userV1 "github.com/kevinmichaelchen/go-sqlboiler-user-api/pkg/pb/myorg/user/v1"
 	"github.com/rs/xid"
 )
 
@@ -41,14 +40,15 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 	}
 
 	// Request information about the user
-	userClient := userV1.NewUserServiceClient(s.usersConn)
-	if out, err := userClient.GetUser(ctx, &userV1.GetUserRequest{
-		Id: requesterID,
-	}); err != nil {
-		return nil, fmt.Errorf("failed to obtain user info: %w", err)
-	} else {
-		logger.Info().Msgf("Fetched info for user: %s: %s", requesterID, out.User.Name)
-	}
+	logger.Info().Msgf("Fetching info for user: %s", requesterID)
+	//userClient := userV1.NewUserServiceClient(s.usersConn)
+	//if out, err := userClient.GetUser(ctx, &userV1.GetUserRequest{
+	//	Id: requesterID,
+	//}); err != nil {
+	//	return nil, fmt.Errorf("failed to obtain user info: %w", err)
+	//} else {
+	//	logger.Info().Msgf("Fetched info for user: %s: %s", requesterID, out.User.Name)
+	//}
 
 	return &todoV1.CreateTodoResponse{
 		Todo: todo,

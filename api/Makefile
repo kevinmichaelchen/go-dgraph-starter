@@ -31,3 +31,5 @@ dc-start:
 .PHONY: dc-stop
 dc-stop:
 	docker-compose stop
+
+include makefiles/*.mk
