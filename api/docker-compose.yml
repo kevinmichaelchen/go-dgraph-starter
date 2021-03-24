@@ -9,6 +9,8 @@ services:
       - postgres
       - redis
       - jaeger
+    environment:
+      JAEGER_SERVICE_NAME: users-api
 
   meilisearch:
     image: getmeili/meilisearch:latest

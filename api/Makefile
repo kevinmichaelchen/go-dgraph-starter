@@ -22,6 +22,7 @@ all:
 start:
 	@env \
 	  GO111MODULE=${GO111MODULE} \
+	  JAEGER_SERVICE_NAME=todo-api \
 	  go run main.go
 
 .PHONY: dc-start
