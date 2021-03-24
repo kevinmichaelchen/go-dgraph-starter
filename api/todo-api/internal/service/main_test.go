@@ -15,7 +15,6 @@ var dgraphClient *dgo.Dgraph
 var svc Service
 
 func TestMain(m *testing.M) {
-
 	config := configuration.LoadConfig()
 
 	log.Info().Msg("Connecting to Redis...")
@@ -25,9 +24,17 @@ func TestMain(m *testing.M) {
 	log.Info().Msg("Connecting to Dgraph...")
 	dgraphClient = config.DgraphConfig.Connect()
 	dbClient := db.NewClient(dgraphClient, redisClient, config)
+
+	// Connect to search index
 	searchClient := search.NewClient(config.SearchConfig)
 
-	svc = NewService(config, dbClient, searchClient)
+	// Dial gRPC connection to Users service
+	usersConn, err := config.UsersConfig.Dial()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to Users service")
+	}
+
+	svc = NewService(config, dbClient, searchClient, usersConn)
 
 	// call flag.Parse() here if TestMain uses flags
 	os.Exit(m.Run())

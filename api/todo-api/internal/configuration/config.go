@@ -46,6 +46,9 @@ type Config struct {
 
 	// TraceConfig contains config info for how we do tracing.
 	TraceConfig obs.TraceConfig
+
+	// UsersConfig contains config info for connecting to the Users microservice.
+	UsersConfig UsersConfig
 }
 
 func (c Config) String() string {
@@ -69,6 +72,7 @@ func LoadConfig() Config {
 	c.TraceConfig = obs.LoadTraceConfig()
 	c.LoggingConfig = obs.LoadLoggingConfig()
 	c.SearchConfig = search.LoadConfig()
+	c.UsersConfig = LoadUsersConfig()
 
 	flag.Int(flagForGrpcPort, c.GrpcPort, "gRPC port")
 	flag.Int(flagForHTTPPort, c.HTTPPort, "HTTP port")

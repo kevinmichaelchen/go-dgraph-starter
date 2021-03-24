@@ -10,7 +10,6 @@ import (
 const schema = `
   id: string @index(exact) .
   title: string @index(term) .
-  name: string @index(term) .
   created_at: datetime @index(day) .
   is_done: bool .
   creator: uid .
@@ -25,7 +24,6 @@ const schema = `
 
   type User {
     id
-    name
     created_at
   }
 

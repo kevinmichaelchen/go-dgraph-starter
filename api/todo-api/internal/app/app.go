@@ -54,7 +54,13 @@ func (a App) Run() {
 	// Create search index
 	search.CreateIndexes(context.TODO(), searchClient.GetClient())
 
-	svc := service.NewService(config, dbClient, searchClient)
+	// Dial gRPC connection to Users service
+	usersConn, err := config.UsersConfig.Dial()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to Users service")
+	}
+
+	svc := service.NewService(config, dbClient, searchClient, usersConn)
 
 	var wg sync.WaitGroup
 
