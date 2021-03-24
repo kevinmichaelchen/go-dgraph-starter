@@ -19,8 +19,8 @@ type UsersConfig struct {
 
 func LoadUsersConfig() UsersConfig {
 	c := UsersConfig{
-		Host: "users",
-		Port: 8084,
+		Host: "localhost",
+		Port: 8086,
 	}
 
 	flag.String(flagForUsersHost, c.Host, "Users host")
