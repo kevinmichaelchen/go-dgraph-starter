@@ -13,7 +13,7 @@ func main() {
 	c := configuration.LoadConfig()
 	log.Info().Msg("Loaded environment config...")
 
-	fn := obs.InitTracer(c.TraceConfig, c.AppName, c.AppID)
+	fn := obs.InitTracer(c.TraceConfig)
 	defer fn()
 
 	a := app.NewApp(c)
