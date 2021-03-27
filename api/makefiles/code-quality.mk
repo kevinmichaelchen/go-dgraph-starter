@@ -1,4 +1,4 @@
-`.PHONY: cq
+.PHONY: cq
 cq:
 	@$(MAKE) code-quality
 

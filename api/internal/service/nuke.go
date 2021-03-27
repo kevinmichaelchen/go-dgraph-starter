@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/db"
-	"github.com/MyOrg/go-dgraph-starter/internal/search"
+	"github.com/MyOrg/todo-api/internal/db"
+	"github.com/MyOrg/todo-api/internal/search"
 )
 
 func (s Service) DropAllData(ctx context.Context) error {

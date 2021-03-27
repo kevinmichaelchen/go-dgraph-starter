@@ -3,11 +3,9 @@ package configuration
 import (
 	"encoding/json"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/obs"
-	"github.com/MyOrg/go-dgraph-starter/internal/search"
+	"github.com/MyOrg/todo-api/internal/obs"
+	"github.com/MyOrg/todo-api/internal/search"
 	"github.com/rs/zerolog/log"
-
-	"github.com/rs/xid"
 
 	flag "github.com/spf13/pflag"
 
@@ -20,20 +18,11 @@ const (
 )
 
 type Config struct {
-	// AppName is a low cardinality identifier for this service.
-	AppName string
-
-	// AppID is a unique identifier for the instance (pod) running this app.
-	AppID string
-
 	// GrpcPort controls what port our gRPC server runs on.
 	GrpcPort int
 
 	// HTTPPort controls what port our HTTP server runs on.
 	HTTPPort int
-
-	// SQLConfig is the configuration for SQL database connection.
-	SQLConfig SQLConfig
 
 	// RedisConfig is the configuration for Redis connection.
 	RedisConfig RedisConfig
@@ -49,6 +38,9 @@ type Config struct {
 
 	// TraceConfig contains config info for how we do tracing.
 	TraceConfig obs.TraceConfig
+
+	// UsersConfig contains config info for connecting to the Users microservice.
+	UsersConfig UsersConfig
 }
 
 func (c Config) String() string {
@@ -61,18 +53,16 @@ func (c Config) String() string {
 
 func LoadConfig() Config {
 	c := Config{
-		AppName:  "todo-api",
-		AppID:    xid.New().String(),
 		GrpcPort: 8084,
 		HTTPPort: 8085,
 	}
 
-	c.SQLConfig = LoadSQLConfig()
 	c.RedisConfig = LoadRedisConfig()
 	c.DgraphConfig = LoadDgraphConfig()
 	c.TraceConfig = obs.LoadTraceConfig()
 	c.LoggingConfig = obs.LoadLoggingConfig()
 	c.SearchConfig = search.LoadConfig()
+	c.UsersConfig = LoadUsersConfig()
 
 	flag.Int(flagForGrpcPort, c.GrpcPort, "gRPC port")
 	flag.Int(flagForHTTPPort, c.HTTPPort, "HTTP port")

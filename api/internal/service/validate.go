@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/MyOrg/go-dgraph-starter/internal/db"
+	"github.com/MyOrg/todo-api/internal/db"
 	"reflect"
 	"strings"
 
-	paginationV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	paginationV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 

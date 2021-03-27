@@ -13,12 +13,16 @@ const (
 type TraceConfig struct {
 	SampleRatio float64
 	Noop        bool
+
+	JaegerConfig JaegerConfig
 }
 
 func LoadTraceConfig() TraceConfig {
 	c := TraceConfig{
 		SampleRatio: 1,
 	}
+
+	c.JaegerConfig = LoadJaegerConfig()
 
 	flag.Float64(flagForTraceSampleRatio, c.SampleRatio, "Probabilistic sample ratio")
 	flag.Bool(flagForTraceNoop, c.Noop, "Whether tracing uses noops or not")

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/db"
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	"github.com/MyOrg/todo-api/internal/db"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 	"github.com/rs/zerolog/log"
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"

@@ -1,6 +1,17 @@
 version: '3.7'
 
 services:
+  users:
+    image: kevinmichaelchen/go-sqlboiler-user-api:latest
+    ports:
+    - 8086:8084
+    depends_on:
+      - postgres
+      - redis
+      - jaeger
+    environment:
+      JAEGER_SERVICE_NAME: users-api
+
   meilisearch:
     image: getmeili/meilisearch:latest
     environment:
@@ -38,6 +49,19 @@ services:
     volumes:
     - dgraphdata:/dgraph
 
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: myorg
+      POSTGRES_PASSWORD: myorg
+      POSTGRES_DB: myorg
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
 volumes:
   dgraphdata:
   meilisearchdata:
+  pgdata:

@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
-	"github.com/MyOrg/go-dgraph-starter/internal/service"
+	"github.com/MyOrg/todo-api/internal/configuration"
+	"github.com/MyOrg/todo-api/internal/service"
 	"github.com/graphql-go/handler"
 )
 

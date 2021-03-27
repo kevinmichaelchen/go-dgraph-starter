@@ -2,17 +2,15 @@ package obs
 
 import (
 	"fmt"
-
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/trace/jaeger"
-	"go.opentelemetry.io/otel/label"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 )
 
 // InitTracer creates a new trace provider instance and registers it as global trace provider.
-func InitTracer(config TraceConfig, appName, appID string) func() {
+func InitTracer(config TraceConfig) func() {
 	log.Info().Msg("Initializing tracer...")
 	if config.Noop {
 		log.Info().Msg("Using noop tracing!")
@@ -21,27 +19,23 @@ func InitTracer(config TraceConfig, appName, appID string) func() {
 	}
 
 	// return initGoogleTraceTracer(config)
-	return initJaegerTracer(config, appName, appID)
+	return initJaegerTracer(config)
 }
 
-func initJaegerTracer(config TraceConfig, appName, appID string) func() {
+func initJaegerTracer(config TraceConfig) func() {
 	sampler := getSampler(config)
 
-	// TODO what should this be?
-	var jaegerHost string
+	jaegerHost := config.JaegerConfig.Host
+	log.Info().Msgf("Exporting to Jaeger host: %s", jaegerHost)
 
 	// Create and install Jaeger export pipeline
 	flush, err := jaeger.InstallNewPipeline(
 		jaeger.WithCollectorEndpoint(fmt.Sprintf("http://%s:14268/api/traces", jaegerHost)),
-		jaeger.WithProcess(jaeger.Process{
-			ServiceName: appName,
-			Tags: []label.KeyValue{
-				label.String("exporter", "jaeger"),
-				label.String("app_id", appID),
-			},
-		}),
-		jaeger.WithSDK(&sdktrace.Config{DefaultSampler: sampler}),
+		jaeger.WithProcessFromEnv(),
+		jaeger.WithSDKOptions(sdktrace.WithSampler(sampler)),
 	)
+
+	// Handler error
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create Jaeger trace export pipeline")
 	}

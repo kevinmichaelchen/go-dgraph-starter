@@ -7,7 +7,7 @@ import (
 	"github.com/dgraph-io/dgo/v200"
 	"github.com/dgraph-io/dgo/v200/protos/api"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
+	"github.com/MyOrg/todo-api/internal/configuration"
 )
 
 const (

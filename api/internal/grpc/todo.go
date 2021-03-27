@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 )
 
 func (s Server) CreateTodo(ctx context.Context, request *todoV1.CreateTodoRequest) (*todoV1.CreateTodoResponse, error) {

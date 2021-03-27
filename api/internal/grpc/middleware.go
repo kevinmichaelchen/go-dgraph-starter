@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/kontext"
-	"github.com/MyOrg/go-dgraph-starter/internal/obs"
+	"github.com/MyOrg/todo-api/internal/kontext"
+	"github.com/MyOrg/todo-api/internal/obs"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"

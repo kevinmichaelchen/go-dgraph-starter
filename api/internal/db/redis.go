@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
-	"github.com/MyOrg/go-dgraph-starter/internal/obs"
+	"github.com/MyOrg/todo-api/internal/configuration"
+	"github.com/MyOrg/todo-api/internal/obs"
 	"github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
 )

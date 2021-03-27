@@ -6,13 +6,13 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/db"
-	"github.com/MyOrg/go-dgraph-starter/internal/graphql"
-	"github.com/MyOrg/go-dgraph-starter/internal/grpc"
-	"github.com/MyOrg/go-dgraph-starter/internal/search"
+	"github.com/MyOrg/todo-api/internal/db"
+	"github.com/MyOrg/todo-api/internal/graphql"
+	"github.com/MyOrg/todo-api/internal/grpc"
+	"github.com/MyOrg/todo-api/internal/search"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
-	"github.com/MyOrg/go-dgraph-starter/internal/service"
+	"github.com/MyOrg/todo-api/internal/configuration"
+	"github.com/MyOrg/todo-api/internal/service"
 )
 
 type App struct {
@@ -54,7 +54,13 @@ func (a App) Run() {
 	// Create search index
 	search.CreateIndexes(context.TODO(), searchClient.GetClient())
 
-	svc := service.NewService(config, dbClient, searchClient)
+	// Dial gRPC connection to Users service
+	usersConn, err := config.UsersConfig.Dial()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to Users service")
+	}
+
+	svc := service.NewService(config, dbClient, searchClient, usersConn)
 
 	var wg sync.WaitGroup
 

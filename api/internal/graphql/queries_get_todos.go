@@ -3,9 +3,9 @@ package graphql
 import (
 	"fmt"
 
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/obs"
+	"github.com/MyOrg/todo-api/internal/obs"
 	"github.com/graphql-go/graphql"
 )
 

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 

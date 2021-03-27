@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/models"
-	"github.com/MyOrg/go-dgraph-starter/internal/obs"
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	"github.com/MyOrg/todo-api/internal/models"
+	"github.com/MyOrg/todo-api/internal/obs"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 	"github.com/golang/protobuf/ptypes"
 )
 

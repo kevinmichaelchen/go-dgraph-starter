@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/obs"
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	"github.com/MyOrg/todo-api/internal/obs"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 	"github.com/dgraph-io/dgo/v200/protos/api"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"

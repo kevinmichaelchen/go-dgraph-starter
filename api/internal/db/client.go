@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/dgraph-io/dgo/v200"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
-	"github.com/MyOrg/go-dgraph-starter/internal/obs"
+	"github.com/MyOrg/todo-api/internal/configuration"
+	"github.com/MyOrg/todo-api/internal/obs"
 )
 
 type TransactionFunc func(context.Context, Transaction) error

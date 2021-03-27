@@ -3,14 +3,17 @@ package service
 import (
 	"context"
 	"fmt"
-
-	"github.com/MyOrg/go-dgraph-starter/internal/db"
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	"github.com/MyOrg/todo-api/internal/db"
+	"github.com/MyOrg/todo-api/internal/obs"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 	"github.com/golang/protobuf/ptypes"
+	userV1 "github.com/kevinmichaelchen/go-sqlboiler-user-api/pkg/pb/myorg/user/v1"
 	"github.com/rs/xid"
 )
 
 func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoRequest) (*todoV1.CreateTodoResponse, error) {
+	logger := obs.ToLogger(ctx)
+
 	requesterID, err := getUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -25,17 +28,27 @@ func (s Service) CreateTodo(ctx context.Context, request *todoV1.CreateTodoReque
 		Done:      false,
 		CreatorId: requesterID,
 	}
-	err = s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
+
+	if err := s.dbClient.RunInTransaction(ctx, func(ctx context.Context, tx db.Transaction) error {
 		return tx.CreateTodo(ctx, todo)
-	})
+	}); err != nil {
+		return nil, err
+	}
 
 	// TODO use Transactional Outbox pattern instead
 	if err := s.searchClient.AddOrUpdate(ctx, todo); err != nil {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
+	// Request information about the user
+	logger.Info().Msgf("Fetching info for user: %s", requesterID)
+	userClient := userV1.NewUserServiceClient(s.usersConn)
+	if out, err := userClient.GetUser(ctx, &userV1.GetUserRequest{
+		Id: requesterID,
+	}); err != nil {
+		return nil, fmt.Errorf("failed to obtain user info: %w", err)
+	} else {
+		logger.Info().Msgf("Fetched info for user: %s: %s", requesterID, out.User.Name)
 	}
 
 	return &todoV1.CreateTodoResponse{

@@ -22,6 +22,15 @@ all:
 start:
 	@env \
 	  GO111MODULE=${GO111MODULE} \
+	  JAEGER_SERVICE_NAME=todo-api \
 	  go run main.go
+
+.PHONY: dc-start
+dc-start:
+	docker-compose up -d
+
+.PHONY: dc-stop
+dc-stop:
+	docker-compose stop
 
 include makefiles/*.mk

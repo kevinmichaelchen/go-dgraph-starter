@@ -6,12 +6,12 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	todoV1 "github.com/MyOrg/go-dgraph-starter/pkg/pb/myorg/todo/v1"
+	todoV1 "github.com/MyOrg/todo-api/pkg/pb/myorg/todo/v1"
 
 	health "google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/MyOrg/go-dgraph-starter/internal/configuration"
-	"github.com/MyOrg/go-dgraph-starter/internal/service"
+	"github.com/MyOrg/todo-api/internal/configuration"
+	"github.com/MyOrg/todo-api/internal/service"
 	"google.golang.org/grpc/reflection"
 )
 
